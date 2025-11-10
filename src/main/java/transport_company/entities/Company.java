@@ -1,5 +1,6 @@
 package transport_company.entities;
 
+import jakarta.validation.constraints.NotNull;
 import transport_company.util.HibernateUtil;
 
 import jakarta.persistence.*;
@@ -7,8 +8,8 @@ import jakarta.validation.constraints.NotBlank;
 
 import org.hibernate.Session;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "companies")
@@ -18,25 +19,27 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @NotBlank
     @Column(nullable = false, length = 50)
     private String name;
 
+    @NotNull
     @Column(nullable = false)
-    private double revenue;
+    private Double revenue;
 
     // Relationships
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Employee> employees = new ArrayList<>();
+    private Set<Employee> employees = new HashSet<>();
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Vehicle> vehicles = new ArrayList<>();
+    private Set<Vehicle> vehicles = new HashSet<>();
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Client> clients = new ArrayList<>();
+    private Set<Client> clients = new HashSet<>();
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Transport> transports = new ArrayList<>();
+    private Set<Transport> transports = new HashSet<>();
 
     // Constructor
     public Company() {
@@ -58,60 +61,60 @@ public class Company {
         this.name = name.trim();
     }
 
-    public double getRevenue() {
+    public Double getRevenue() {
         return revenue;
     }
 
-    public void setRevenue(double revenue) {
-        if (revenue < 0) {
-            throw new IllegalArgumentException("Revenue cannot be negative");
+    public void setRevenue(Double revenue) {
+        if (revenue == null || revenue < 0) {
+            throw new IllegalArgumentException("Revenue must be positive");
         }
         this.revenue = revenue;
     }
 
-    public List<Employee> getEmployees() {
+    public Set<Employee> getEmployees() {
         return employees;
     }
 
-    public void setEmployees(List<Employee> employees) {
+    public void setEmployees(Set<Employee> employees) {
         if (employees == null) {
-            this.employees = new ArrayList<>();
+            this.employees = new HashSet<>();
         } else {
             this.employees = employees;
         }
     }
 
-    public List<Vehicle> getVehicles() {
+    public Set<Vehicle> getVehicles() {
         return vehicles;
     }
 
-    public void setVehicles(List<Vehicle> vehicles) {
+    public void setVehicles(Set<Vehicle> vehicles) {
         if (vehicles == null) {
-            this.vehicles = new ArrayList<>();
+            this.vehicles = new HashSet<>();
         } else {
             this.vehicles = vehicles;
         }
     }
 
-    public List<Client> getClients() {
+    public Set<Client> getClients() {
         return clients;
     }
 
-    public void setClients(List<Client> clients) {
+    public void setClients(Set<Client> clients) {
         if (clients == null) {
-            this.clients = new ArrayList<>();
+            this.clients = new HashSet<>();
         } else {
             this.clients = clients;
         }
     }
 
-    public List<Transport> getTransports() {
+    public Set<Transport> getTransports() {
         return transports;
     }
 
-    public void setTransports(List<Transport> transports) {
+    public void setTransports(Set<Transport> transports) {
         if (transports == null) {
-            this.transports = new ArrayList<>();
+            this.transports = new HashSet<>();
         } else {
             this.transports = transports;
         }

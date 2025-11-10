@@ -19,7 +19,7 @@ public class EmployeeDAOTest {
 
         Employee newEmployee = new Employee();
         newEmployee.setName("New Employee");
-        newEmployee.setQualification(EQualificationType.DRIVER);
+        newEmployee.setQualification(EQualificationType.PASSENGER);
         newEmployee.setSalary(1000.0);
         newEmployee.setCompanyById(1L);
         employeeDAO.create(newEmployee);
@@ -95,11 +95,11 @@ public class EmployeeDAOTest {
         assertNotNull(employee, "Employee with ID " + employeeId + " cannot be found in the database");
 
         employee.setName("Updated Name");
-        employee.setQualification(EQualificationType.MANAGER);
+        employee.setQualification(EQualificationType.SPECIAL_LOAD);
         employee.setSalary(1500.0);
 
         assertEquals("Updated Name", employee.getName(), "Employee name update was not successful");
-        assertEquals(EQualificationType.MANAGER, employee.getQualification(), "Employee qualification update was not successful");
+        assertEquals(EQualificationType.SPECIAL_LOAD, employee.getQualification(), "Employee qualification update was not successful");
         assertEquals(1500.0, employee.getSalary(), "Employee salary update was not successful");
 
         employeeDAO.update(employee);

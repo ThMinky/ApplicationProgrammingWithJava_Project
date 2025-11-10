@@ -1,23 +1,12 @@
 [ {
   "id" : 1,
-  "startLocation" : "Sofia",
-  "endLocation" : "Varna",
-  "departTime" : "2025-11-06 16:30",
-  "arriveTime" : "2025-11-06 21:30",
+  "startLocation" : "A",
+  "endLocation" : "B",
+  "departTime" : "2025-11-10 17:06",
+  "arriveTime" : "2025-11-10 22:06",
   "cargoType" : "GOODS",
-  "weight" : 100.0,
-  "numberOfPeople" : 0,
-  "price" : 500.0,
-  "paidStatus" : true
-}, {
-  "id" : 2,
-  "startLocation" : "Ruse",
-  "endLocation" : "Sofia",
-  "departTime" : "2025-11-06 16:32",
-  "arriveTime" : "2025-11-06 21:32",
-  "cargoType" : "GOODS",
-  "weight" : 100.0,
-  "numberOfPeople" : 0,
+  "weight" : 10.0,
+  "transportSpecification" : "GOODS_SPECIAL",
   "price" : 1500.0,
   "paidStatus" : true
 } ]

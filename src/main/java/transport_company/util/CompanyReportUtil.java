@@ -5,8 +5,8 @@ import transport_company.entities.Employee;
 import transport_company.entities.Transport;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class CompanyReportUtil {
 
@@ -16,7 +16,7 @@ public class CompanyReportUtil {
             return;
         }
 
-        List<Transport> transports = company.getTransports();
+        Set<Transport> transports = company.getTransports();
         if (transports == null || transports.isEmpty()) {
             System.out.println("No transports found for company: " + company.getName());
             return;

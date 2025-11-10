@@ -19,7 +19,7 @@ public class VehicleDAOTest {
 
         Vehicle newVehicle = new Vehicle();
         newVehicle.setCapacity(50.0);
-        newVehicle.setType(EVehicleType.TRUCK);
+        newVehicle.setType(EVehicleType.BUS);
         newVehicle.setCompanyById(1L);
         vehicleDAO.create(newVehicle);
 

@@ -3,6 +3,7 @@ package transport_company.entities;
 import transport_company.enums.ECargoType;
 import transport_company.enums.EVehicleType;
 import transport_company.enums.EQualificationType;
+import transport_company.enums.ETransportSpecificationType;
 
 import transport_company.util.HibernateUtil;
 
@@ -33,25 +34,35 @@ public class Transport {
     private String endLocation;
 
     @NotNull
+    @Column(nullable = false)
     private LocalDateTime departTime;
 
     @NotNull
+    @Column(nullable = false)
     private LocalDateTime arriveTime;
 
-    @Enumerated(EnumType.STRING)
     @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(length = 50, nullable = false)
     private ECargoType cargoType;
 
-    @Positive
-    private Integer numberOfPeople; // Only for PEOPLE
-
-    @Positive
-    private Double weight; // Only for GOODS
-
-    @Positive
-    private double price;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(length = 50, nullable = false)
+    private ETransportSpecificationType transportSpecification;
 
     @NotNull
+    @Positive
+    @Column(nullable = false)
+    private Double weight;
+
+    @NotNull
+    @Positive
+    @Column(nullable = false)
+    private Double price;
+
+    @NotNull
+    @Column(nullable = false)
     private Boolean paidStatus = false;
 
     // Relationships
@@ -137,20 +148,21 @@ public class Transport {
             throw new IllegalArgumentException("Cargo type cannot be null");
         }
         this.cargoType = cargoType;
-        if (vehicle != null) {
-            validateVehicleForCargo(vehicle, cargoType);
-        }
     }
 
-    public Integer getNumberOfPeople() {
-        return numberOfPeople;
+    public ETransportSpecificationType getTransportSpecification() {
+        return transportSpecification;
     }
 
-    public void setNumberOfPeople(Integer numberOfPeople) {
-        if (cargoType == ECargoType.PEOPLE && (numberOfPeople == null || numberOfPeople <= 0)) {
-            throw new IllegalArgumentException("Number of people must be positive for PEOPLE transport");
+    public void setTransportSpecification(ETransportSpecificationType transportSpecification) {
+        if (transportSpecification == null) {
+            throw new IllegalArgumentException("Specification cannot be null");
         }
-        this.numberOfPeople = numberOfPeople;
+
+        if (driver != null) validateDriverCompatibility(driver);
+        if (vehicle != null) validateVehicleCompatibility(vehicle);
+
+        this.transportSpecification = transportSpecification;
     }
 
     public Double getWeight() {
@@ -164,12 +176,12 @@ public class Transport {
         this.weight = weight;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
-        if (price <= 0) {
+    public void setPrice(Double price) {
+        if (price == null || price <= 0) {
             throw new IllegalArgumentException("Price must be positive");
         }
         this.price = price;
@@ -191,9 +203,6 @@ public class Transport {
     }
 
     public void setCompany(Company company) {
-        if (company == null) {
-            throw new IllegalArgumentException("Company cannot be null for a Transport");
-        }
         this.company = company;
     }
 
@@ -210,14 +219,7 @@ public class Transport {
     }
 
     public void setVehicle(Vehicle vehicle) {
-        if (vehicle == null) {
-            this.vehicle = null;
-            return;
-        }
-        if (cargoType == null) {
-            throw new IllegalStateException("Cargo type must be set before assigning a vehicle.");
-        }
-        validateVehicleForCargo(vehicle, cargoType);
+        validateVehicleCompatibility(vehicle);
         this.vehicle = vehicle;
     }
 
@@ -226,28 +228,11 @@ public class Transport {
     }
 
     public void setDriver(Employee driver) {
-        if (driver != null && driver.getQualification() != EQualificationType.DRIVER) {
-            throw new IllegalArgumentException("Employee is not qualified as DRIVER");
-        }
+        validateDriverCompatibility(driver);
         this.driver = driver;
     }
 
     // Helper Methods
-    private void validateVehicleForCargo(Vehicle vehicle, ECargoType cargoType) {
-        switch (cargoType) {
-            case GOODS -> {
-                if (vehicle.getType() != EVehicleType.TRUCK) {
-                    throw new IllegalArgumentException("Vehicle must be a TRUCK for GOODS transport");
-                }
-            }
-            case PEOPLE -> {
-                if (vehicle.getType() != EVehicleType.BUS) {
-                    throw new IllegalArgumentException("Vehicle must be a BUS for PEOPLE transport");
-                }
-            }
-        }
-    }
-
     public void setCompanyById(Long companyId) {
         if (companyId == null) {
             this.company = null;
@@ -286,10 +271,7 @@ public class Transport {
             if (existingVehicle == null) {
                 throw new IllegalArgumentException("Vehicle with ID " + vehicleId + " does not exist in the database");
             }
-            if (cargoType == null) {
-                throw new IllegalStateException("Cargo type must be set before assigning a vehicle.");
-            }
-            validateVehicleForCargo(existingVehicle, cargoType);
+            validateVehicleCompatibility(existingVehicle);
             this.vehicle = existingVehicle;
         }
     }
@@ -304,10 +286,42 @@ public class Transport {
             if (existingDriver == null) {
                 throw new IllegalArgumentException("Driver with ID " + driverId + " does not exist in the database");
             }
-            if (existingDriver.getQualification() != EQualificationType.DRIVER) {
-                throw new IllegalArgumentException("Employee with ID " + driverId + " is not qualified as DRIVER");
-            }
+            validateDriverCompatibility(existingDriver);
             this.driver = existingDriver;
+        }
+    }
+
+    private void validateDriverCompatibility(Employee driverToCheck) {
+        if (transportSpecification == null || driverToCheck == null) return;
+
+        EQualificationType expectedQualification = switch (transportSpecification) {
+            case PASSENGER -> EQualificationType.PASSENGER;
+            case GOODS_SPECIAL -> EQualificationType.SPECIAL_LOAD;
+            case GOODS_HAZARDOUS -> EQualificationType.HAZARDOUS_MATERIAL;
+        };
+
+        if (driverToCheck.getQualification() != expectedQualification) {
+            throw new IllegalArgumentException(
+                    "Driver qualification " + driverToCheck.getQualification() +
+                            " does not match transport specification " + transportSpecification
+            );
+        }
+    }
+
+    private void validateVehicleCompatibility(Vehicle vehicleToCheck) {
+        if (transportSpecification == null || vehicleToCheck == null) return;
+
+        EVehicleType expectedVehicleType = switch (transportSpecification) {
+            case PASSENGER -> EVehicleType.BUS;
+            case GOODS_SPECIAL -> EVehicleType.TRUCK;
+            case GOODS_HAZARDOUS -> EVehicleType.TANK;
+        };
+
+        if (vehicleToCheck.getType() != expectedVehicleType) {
+            throw new IllegalArgumentException(
+                    "Vehicle type " + vehicleToCheck.getType() +
+                            " does not match transport specification " + transportSpecification
+            );
         }
     }
 }

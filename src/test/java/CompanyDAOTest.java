@@ -121,7 +121,7 @@ public class CompanyDAOTest {
     }
 
     @Test
-    void testCompanyReport(){
+    void testCompanyReport() {
         Long companyId = 1L;
 
         CompanyReportUtil.printCompanyReport(Company.getCompanyById(companyId));

@@ -1,5 +1,6 @@
 package transport_company.entities;
 
+import jakarta.validation.constraints.NotNull;
 import transport_company.enums.EVehicleType;
 
 import transport_company.util.HibernateUtil;
@@ -17,10 +18,12 @@ public class Vehicle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @Positive
     @Column(nullable = false)
-    private double capacity;
+    private Double capacity;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EVehicleType type; // BUS or TRUCK
@@ -41,12 +44,12 @@ public class Vehicle {
         return id;
     }
 
-    public double getCapacity() {
+    public Double getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(double capacity) {
-        if (capacity <= 0) {
+    public void setCapacity(Double capacity) {
+        if (capacity == null || capacity <= 0) {
             throw new IllegalArgumentException("Vehicle capacity must be positive");
         }
         this.capacity = capacity;
@@ -68,9 +71,6 @@ public class Vehicle {
     }
 
     public void setCompany(Company company) {
-        if (company == null) {
-            throw new IllegalArgumentException("Company cannot be null for a Vehicle");
-        }
         this.company = company;
     }
 

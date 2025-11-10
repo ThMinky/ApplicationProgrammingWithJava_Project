@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import transport_company.util.TransportJsonUtil;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,11 +45,13 @@ public class ClientDAOTest {
         System.out.println("Company ID: " + client.getCompany().getId());
 
         System.out.print("Transport IDs: ");
-        List<Transport> transports = client.getTransports();
+        Set<Transport> transports = client.getTransports();
         if (transports != null && !transports.isEmpty()) {
-            for (int i = 0; i < transports.size(); i++) {
-                System.out.print(transports.get(i).getId());
-                if (i < transports.size() - 1) {
+            int count = 0;
+            for (Transport t : transports) {
+                System.out.print(t.getId());
+                count++;
+                if (count < transports.size()) {
                     System.out.print(", ");
                 }
             }
@@ -71,11 +74,13 @@ public class ClientDAOTest {
                 System.out.println("Company ID: " + client.getCompany().getId());
 
                 System.out.print("Transport IDs: ");
-                List<Transport> transports = client.getTransports();
+                Set<Transport> transports = client.getTransports();
                 if (transports != null && !transports.isEmpty()) {
-                    for (int i = 0; i < transports.size(); i++) {
-                        System.out.print(transports.get(i).getId());
-                        if (i < transports.size() - 1) {
+                    int count = 0;
+                    for (Transport t : transports) {
+                        System.out.print(t.getId());
+                        count++;
+                        if (count < transports.size()) {
                             System.out.print(", ");
                         }
                     }
@@ -100,11 +105,13 @@ public class ClientDAOTest {
                 System.out.println("Company ID: " + client.getCompany().getId());
 
                 System.out.print("Transport IDs: ");
-                List<Transport> transports = client.getTransports();
+                Set<Transport> transports = client.getTransports();
                 if (transports != null && !transports.isEmpty()) {
-                    for (int i = 0; i < transports.size(); i++) {
-                        System.out.print(transports.get(i).getId());
-                        if (i < transports.size() - 1) {
+                    int count = 0;
+                    for (Transport t : transports) {
+                        System.out.print(t.getId());
+                        count++;
+                        if (count < transports.size()) {
                             System.out.print(", ");
                         }
                     }

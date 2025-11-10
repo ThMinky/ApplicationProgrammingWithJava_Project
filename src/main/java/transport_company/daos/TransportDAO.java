@@ -20,9 +20,16 @@ public class TransportDAO {
 
     public Transport readById(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.get(Transport.class, id);
+            return session.createQuery(
+                            "SELECT t FROM Transport t " +
+                                    "LEFT JOIN FETCH t.vehicle " +
+                                    "LEFT JOIN FETCH t.driver " +
+                                    "WHERE t.id = :id", Transport.class)
+                    .setParameter("id", id)
+                    .uniqueResult();
         }
     }
+
 
     public List<Transport> readAllByCompanyId(Long companyId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {

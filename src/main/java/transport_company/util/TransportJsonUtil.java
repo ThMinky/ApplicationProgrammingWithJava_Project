@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import transport_company.enums.ETransportSpecificationType;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class TransportJsonUtil {
                 formatDate(transport.getArriveTime()),
                 transport.getCargoType(),
                 transport.getWeight(),
-                transport.getNumberOfPeople(),
+                transport.getTransportSpecification(),
                 transport.getPrice(),
                 transport.getPaidStatus()
         ));
@@ -86,8 +87,8 @@ public class TransportJsonUtil {
         public String arriveTime;
         public ECargoType cargoType;
         public Double weight;
-        public Integer numberOfPeople;
-        public double price;
+        public ETransportSpecificationType transportSpecification;
+        public Double price;
         public Boolean paidStatus;
 
         public SimpleTransport() {
@@ -95,7 +96,8 @@ public class TransportJsonUtil {
 
         public SimpleTransport(Long id, String startLocation, String endLocation,
                                String departTime, String arriveTime, ECargoType cargoType,
-                               Double weight, Integer numberOfPeople, double price, Boolean paidStatus) {
+                               Double weight, ETransportSpecificationType transportSpecification,
+                               Double price, Boolean paidStatus) {
             this.id = id;
             this.startLocation = startLocation;
             this.endLocation = endLocation;
@@ -103,7 +105,7 @@ public class TransportJsonUtil {
             this.arriveTime = arriveTime;
             this.cargoType = cargoType;
             this.weight = weight;
-            this.numberOfPeople = numberOfPeople;
+            this.transportSpecification = transportSpecification;
             this.price = price;
             this.paidStatus = paidStatus;
         }
@@ -122,7 +124,7 @@ public class TransportJsonUtil {
                             Paid: %s
                             """,
                     id, startLocation, endLocation, departTime, arriveTime, cargoType,
-                    weight != null ? "Weight: " + weight : "People: " + numberOfPeople,
+                    weight != null ? "Weight: " + weight : "Transport Specification: " + transportSpecification,
                     price, paidStatus);
         }
     }

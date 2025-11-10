@@ -1,5 +1,6 @@
 package transport_company.entities;
 
+import jakarta.validation.constraints.NotNull;
 import transport_company.util.HibernateUtil;
 
 import jakarta.persistence.*;
@@ -10,7 +11,9 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "clients")
@@ -20,6 +23,7 @@ public class Client {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @NotBlank
     @Column(nullable = false, length = 50)
     private String name;
@@ -31,7 +35,7 @@ public class Client {
     private Company company;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Transport> transports = new ArrayList<>();
+    private Set<Transport> transports = new HashSet<>();
 
     // Constructor
     public Client() {
@@ -58,18 +62,15 @@ public class Client {
     }
 
     public void setCompany(Company company) {
-        if (company == null) {
-            throw new IllegalArgumentException("Company cannot be null for a Client");
-        }
         this.company = company;
     }
 
-    public List<Transport> getTransports() {
+    public Set<Transport> getTransports() {
         return transports;
     }
 
-    public void setTransports(List<Transport> transports) {
-        this.transports = (transports != null) ? transports : new ArrayList<>();
+    public void setTransports(Set<Transport> transports) {
+        this.transports = (transports != null) ? transports : new HashSet<>();
     }
 
     // Helper methods

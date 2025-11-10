@@ -1,5 +1,6 @@
 package transport_company.entities;
 
+import jakarta.validation.constraints.NotNull;
 import transport_company.enums.EQualificationType;
 
 import jakarta.persistence.*;
@@ -16,17 +17,20 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @NotBlank
     @Column(nullable = false, length = 50)
     private String name;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EQualificationType qualification;
 
+    @NotNull
     @Positive
     @Column(nullable = false)
-    private double salary;
+    private Double salary;
 
     // Relationships
     @ManyToOne(fetch = FetchType.LAZY)
@@ -67,12 +71,12 @@ public class Employee {
         this.qualification = qualification;
     }
 
-    public double getSalary() {
+    public Double getSalary() {
         return salary;
     }
 
-    public void setSalary(double salary) {
-        if (salary <= 0) {
+    public void setSalary(Double salary) {
+        if (salary == null || salary <= 0) {
             throw new IllegalArgumentException("Salary must be positive");
         }
         this.salary = salary;
@@ -83,9 +87,6 @@ public class Employee {
     }
 
     public void setCompany(Company company) {
-        if (company == null) {
-            throw new IllegalArgumentException("Company cannot be null for an employee");
-        }
         this.company = company;
     }
 
