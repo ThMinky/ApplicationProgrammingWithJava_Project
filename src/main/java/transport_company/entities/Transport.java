@@ -5,13 +5,10 @@ import transport_company.enums.EVehicleType;
 import transport_company.enums.EQualificationType;
 import transport_company.enums.ETransportSpecificationType;
 
-import transport_company.util.HibernateUtil;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-import org.hibernate.Session;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -65,7 +62,9 @@ public class Transport {
     @Column(nullable = false)
     private Boolean paidStatus = false;
 
+    // //////////////////////////////////////////////////
     // Relationships
+    // ////////////////////////////////////////////////
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", foreignKey = @ForeignKey(name = "fk_transport_company",
             foreignKeyDefinition = "FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE"))
@@ -86,15 +85,30 @@ public class Transport {
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Employee driver;
 
-    // Constructor
+    // //////////////////////////////////////////////////
+    // Constructors
+    // ////////////////////////////////////////////////
     public Transport() {
     }
 
+    // //////////////////////////////////////////////////
     // Getters & Setters
+    // ////////////////////////////////////////////////
+
+    // //////////////////////////////////////////////////
+    // Id
+    // ////////////////////////////////////////////////
     public Long getId() {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    // //////////////////////////////////////////////////
+    // Start Location
+    // ////////////////////////////////////////////////
     public String getStartLocation() {
         return startLocation;
     }
@@ -106,6 +120,9 @@ public class Transport {
         this.startLocation = startLocation.trim();
     }
 
+    // //////////////////////////////////////////////////
+    // End Location
+    // ////////////////////////////////////////////////
     public String getEndLocation() {
         return endLocation;
     }
@@ -117,6 +134,9 @@ public class Transport {
         this.endLocation = endLocation.trim();
     }
 
+    // //////////////////////////////////////////////////
+    // Depart Time
+    // ////////////////////////////////////////////////
     public LocalDateTime getDepartTime() {
         return departTime;
     }
@@ -128,6 +148,9 @@ public class Transport {
         this.departTime = departTime;
     }
 
+    // //////////////////////////////////////////////////
+    // Arrive Time
+    // ////////////////////////////////////////////////
     public LocalDateTime getArriveTime() {
         return arriveTime;
     }
@@ -139,6 +162,9 @@ public class Transport {
         this.arriveTime = arriveTime;
     }
 
+    // //////////////////////////////////////////////////
+    // Cargo Type
+    // ////////////////////////////////////////////////
     public ECargoType getCargoType() {
         return cargoType;
     }
@@ -150,6 +176,9 @@ public class Transport {
         this.cargoType = cargoType;
     }
 
+    // //////////////////////////////////////////////////
+    // Transport Specification
+    // ////////////////////////////////////////////////
     public ETransportSpecificationType getTransportSpecification() {
         return transportSpecification;
     }
@@ -159,12 +188,15 @@ public class Transport {
             throw new IllegalArgumentException("Specification cannot be null");
         }
 
-        if (driver != null) validateDriverCompatibility(driver);
-        if (vehicle != null) validateVehicleCompatibility(vehicle);
+        if (driver != null) validateDriverCompatibility(transportSpecification, driver);
+        if (vehicle != null) validateVehicleCompatibility(transportSpecification, vehicle);
 
         this.transportSpecification = transportSpecification;
     }
 
+    // //////////////////////////////////////////////////
+    // Weight
+    // ////////////////////////////////////////////////
     public Double getWeight() {
         return weight;
     }
@@ -176,6 +208,9 @@ public class Transport {
         this.weight = weight;
     }
 
+    // //////////////////////////////////////////////////
+    // Price
+    // ////////////////////////////////////////////////
     public Double getPrice() {
         return price;
     }
@@ -187,6 +222,9 @@ public class Transport {
         this.price = price;
     }
 
+    // //////////////////////////////////////////////////
+    // Paid Status
+    // ////////////////////////////////////////////////
     public Boolean getPaidStatus() {
         return paidStatus;
     }
@@ -198,14 +236,9 @@ public class Transport {
         this.paidStatus = paidStatus;
     }
 
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
-    }
-
+    // //////////////////////////////////////////////////
+    // Client
+    // ////////////////////////////////////////////////
     public Client getClient() {
         return client;
     }
@@ -214,84 +247,43 @@ public class Transport {
         this.client = client;
     }
 
-    public Vehicle getVehicle() {
-        return vehicle;
+    // //////////////////////////////////////////////////
+    // Company
+    // ////////////////////////////////////////////////
+    public Company getCompany() {
+        return company;
     }
 
-    public void setVehicle(Vehicle vehicle) {
-        validateVehicleCompatibility(vehicle);
-        this.vehicle = vehicle;
+    public void setCompany(Company company) {
+        this.company = company;
     }
 
+    // //////////////////////////////////////////////////
+    // Driver (Employee)
+    // ////////////////////////////////////////////////
     public Employee getDriver() {
         return driver;
     }
 
     public void setDriver(Employee driver) {
-        validateDriverCompatibility(driver);
         this.driver = driver;
     }
 
-    // Helper Methods
-    public void setCompanyById(Long companyId) {
-        if (companyId == null) {
-            this.company = null;
-            return;
-        }
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Company existingCompany = session.get(Company.class, companyId);
-            if (existingCompany == null) {
-                throw new IllegalArgumentException("Company with ID " + companyId + " does not exist in the database");
-            }
-            this.company = existingCompany;
-        }
+    // //////////////////////////////////////////////////
+    // Vehicle
+    // ////////////////////////////////////////////////
+    public Vehicle getVehicle() {
+        return vehicle;
     }
 
-    public void setClientById(Long clientId) {
-        if (clientId == null) {
-            this.client = null;
-            return;
-        }
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Client existingClient = session.get(Client.class, clientId);
-            if (existingClient == null) {
-                throw new IllegalArgumentException("Client with ID " + clientId + " does not exist in the database");
-            }
-            this.client = existingClient;
-        }
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
     }
 
-    public void setVehicleById(Long vehicleId) {
-        if (vehicleId == null) {
-            this.vehicle = null;
-            return;
-        }
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Vehicle existingVehicle = session.get(Vehicle.class, vehicleId);
-            if (existingVehicle == null) {
-                throw new IllegalArgumentException("Vehicle with ID " + vehicleId + " does not exist in the database");
-            }
-            validateVehicleCompatibility(existingVehicle);
-            this.vehicle = existingVehicle;
-        }
-    }
-
-    public void setDriverById(Long driverId) {
-        if (driverId == null) {
-            this.driver = null;
-            return;
-        }
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Employee existingDriver = session.get(Employee.class, driverId);
-            if (existingDriver == null) {
-                throw new IllegalArgumentException("Driver with ID " + driverId + " does not exist in the database");
-            }
-            validateDriverCompatibility(existingDriver);
-            this.driver = existingDriver;
-        }
-    }
-
-    private void validateDriverCompatibility(Employee driverToCheck) {
+    // //////////////////////////////////////////////////
+    // Helpers
+    // ////////////////////////////////////////////////
+    private void validateDriverCompatibility(ETransportSpecificationType transportSpecification, Employee driverToCheck) {
         if (transportSpecification == null || driverToCheck == null) return;
 
         EQualificationType expectedQualification = switch (transportSpecification) {
@@ -308,7 +300,7 @@ public class Transport {
         }
     }
 
-    private void validateVehicleCompatibility(Vehicle vehicleToCheck) {
+    private void validateVehicleCompatibility(ETransportSpecificationType transportSpecification, Vehicle vehicleToCheck) {
         if (transportSpecification == null || vehicleToCheck == null) return;
 
         EVehicleType expectedVehicleType = switch (transportSpecification) {

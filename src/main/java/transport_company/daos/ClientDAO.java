@@ -1,6 +1,8 @@
 package transport_company.daos;
 
+import transport_company.dtos.ClientDTO;
 import transport_company.entities.Client;
+import transport_company.mappers.ClientMapper;
 import transport_company.util.HibernateUtil;
 
 import org.hibernate.Hibernate;
@@ -8,67 +10,88 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ClientDAO {
 
-    public void create(Client client) {
+    public void create(ClientDTO dto) {
+        java.util.Objects.requireNonNull(dto, "Client DTO cannot be null");
+
+        if (dto.getCompanyId() == null) {
+            throw new IllegalArgumentException("Client must have a company ID");
+        }
+
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction tx = session.beginTransaction();
+
+            Client client = ClientMapper.toEntity(dto);
+
             session.persist(client);
             tx.commit();
         }
     }
 
-    public Client readById(Long id) {
+    public ClientDTO readById(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Client client = session.get(Client.class, id);
             if (client != null) {
                 Hibernate.initialize(client.getTransports());
                 Hibernate.initialize(client.getCompany());
             }
-            return client;
+            return ClientMapper.toDTO(client);
         }
     }
 
-    public List<Client> readAllByCompanyId(Long companyId) {
+    public List<ClientDTO> readAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery(
-                            "SELECT DISTINCT c FROM Client c " +
-                                    "LEFT JOIN FETCH c.company " +
-                                    "LEFT JOIN FETCH c.transports " +
-                                    "WHERE c.company.id = :cid", Client.class)
-                    .setParameter("cid", companyId)
-                    .list();
+            List<Client> clients = session.createQuery("SELECT DISTINCT c FROM Client c "
+                    + "LEFT JOIN FETCH c.company "
+                    + "LEFT JOIN FETCH c.transports", Client.class).list();
+
+            return clients.stream().map(ClientMapper::toDTO).collect(Collectors.toList());
         }
     }
 
-    public List<Client> readAll() {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery(
-                    "SELECT DISTINCT c FROM Client c " +
-                            "LEFT JOIN FETCH c.company " +
-                            "LEFT JOIN FETCH c.transports",
-                    Client.class
-            ).list();
-        }
-    }
+    public void update(ClientDTO dto) {
+        java.util.Objects.requireNonNull(dto, "Client DTO cannot be null");
 
-    public void update(Client client) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction tx = session.beginTransaction();
-            session.merge(client);
+
+            Client managed = session.get(Client.class, dto.getId());
+            if (managed == null) {
+                throw new IllegalArgumentException("Client with ID " + dto.getId() + " does not exist");
+            }
+
+            managed.setName(dto.getName());
+
             tx.commit();
         }
     }
 
-    public void delete(Client client) {
+    public void delete(Long clientId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction tx = session.beginTransaction();
-            Client managed = session.get(Client.class, client.getId());
+
+            Client managed = session.get(Client.class, clientId);
             if (managed != null) {
                 session.remove(managed);
             }
             tx.commit();
+        }
+    }
+
+    // //////////////////////////////////////////////////
+    // Helpers
+    // ////////////////////////////////////////////////
+    public Client readEntityById(Long id) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Client client = session.get(Client.class, id);
+            if (client != null) {
+                Hibernate.initialize(client.getCompany());
+                Hibernate.initialize(client.getTransports());
+            }
+            return client;
         }
     }
 }

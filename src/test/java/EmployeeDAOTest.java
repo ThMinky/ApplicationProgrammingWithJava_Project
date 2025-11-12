@@ -1,5 +1,5 @@
 import transport_company.daos.EmployeeDAO;
-import transport_company.entities.Employee;
+import transport_company.dtos.EmployeeDTO;
 import transport_company.enums.EQualificationType;
 
 import org.junit.jupiter.api.Test;
@@ -14,17 +14,17 @@ public class EmployeeDAOTest {
 
     @Test
     void testCreate() {
-        List<Employee> employeesBefore = employeeDAO.readAll();
+        List<EmployeeDTO> employeesBefore = employeeDAO.readAll();
         int countBefore = employeesBefore.size();
 
-        Employee newEmployee = new Employee();
-        newEmployee.setName("New Employee");
-        newEmployee.setQualification(EQualificationType.PASSENGER);
-        newEmployee.setSalary(1000.0);
-        newEmployee.setCompanyById(1L);
-        employeeDAO.create(newEmployee);
+        EmployeeDTO newEmployeeDTO = new EmployeeDTO();
+        newEmployeeDTO.setName("New Employee");
+        newEmployeeDTO.setQualification(EQualificationType.PASSENGER);
+        newEmployeeDTO.setSalary(1000.0);
+        newEmployeeDTO.setCompanyId(1L);
+        employeeDAO.create(newEmployeeDTO);
 
-        List<Employee> employeesAfter = employeeDAO.readAll();
+        List<EmployeeDTO> employeesAfter = employeeDAO.readAll();
         int countAfter = employeesAfter.size();
 
         assertTrue(countAfter > countBefore, "Employee creation failed");
@@ -34,53 +34,31 @@ public class EmployeeDAOTest {
     void testReadById() {
         Long employeeId = 1L;
 
-        Employee employee = employeeDAO.readById(employeeId);
-        assertNotNull(employee, "Employee with ID " + employeeId + " cannot be found in the database");
+        EmployeeDTO employeeDTO = employeeDAO.readById(employeeId);
+        assertNotNull(employeeDTO, "Employee with ID " + employeeId + " cannot be found in the database");
 
-        System.out.println("Employee ID: " + employee.getId());
-        System.out.println("Name: " + employee.getName());
-        System.out.println("Qualification: " + employee.getQualification());
-        System.out.println("Salary: " + employee.getSalary());
+        System.out.println("Employee ID: " + employeeDTO.getId());
+        System.out.println("Name: " + employeeDTO.getName());
+        System.out.println("Qualification: " + employeeDTO.getQualification());
+        System.out.println("Salary: " + employeeDTO.getSalary());
 
-        System.out.println("Company ID: " + employee.getCompany().getId());
-    }
-
-    @Test
-    void testReadAllByCompanyId() {
-        Long companyId = 1L;
-
-        List<Employee> employees = employeeDAO.readAllByCompanyId(companyId);
-
-        if (employees.isEmpty()) {
-            System.out.println("No employees found for company ID " + companyId + " in the database");
-        } else {
-            for (Employee employee : employees) {
-                System.out.println("Employee ID: " + employee.getId());
-                System.out.println("Name: " + employee.getName());
-                System.out.println("Qualification: " + employee.getQualification());
-                System.out.println("Salary: " + employee.getSalary());
-
-                System.out.println("Company ID: " + employee.getCompany().getId());
-
-                System.out.println("//////////////////////////////////////////////////");
-            }
-        }
+        System.out.println("Company ID: " + employeeDTO.getCompanyId());
     }
 
     @Test
     void testReadAll() {
-        List<Employee> employees = employeeDAO.readAll();
+        List<EmployeeDTO> employeeDTOS = employeeDAO.readAll();
 
-        if (employees.isEmpty()) {
+        if (employeeDTOS.isEmpty()) {
             System.out.println("No employees found in the database");
         } else {
-            for (Employee employee : employees) {
-                System.out.println("Employee ID: " + employee.getId());
-                System.out.println("Name: " + employee.getName());
-                System.out.println("Qualification: " + employee.getQualification());
-                System.out.println("Salary: " + employee.getSalary());
+            for (EmployeeDTO employeeDTO : employeeDTOS) {
+                System.out.println("Employee ID: " + employeeDTO.getId());
+                System.out.println("Name: " + employeeDTO.getName());
+                System.out.println("Qualification: " + employeeDTO.getQualification());
+                System.out.println("Salary: " + employeeDTO.getSalary());
 
-                System.out.println("Company ID: " + employee.getCompany().getId());
+                System.out.println("Company ID: " + employeeDTO.getCompanyId());
 
                 System.out.println("//////////////////////////////////////////////////");
             }
@@ -91,45 +69,42 @@ public class EmployeeDAOTest {
     void testUpdate() {
         Long employeeId = 1L;
 
-        Employee employee = employeeDAO.readById(employeeId);
-        assertNotNull(employee, "Employee with ID " + employeeId + " cannot be found in the database");
+        EmployeeDTO employeeDTO = employeeDAO.readById(employeeId);
+        assertNotNull(employeeDTO, "Employee with ID " + employeeId + " cannot be found in the database");
 
-        employee.setName("Updated Name");
-        employee.setQualification(EQualificationType.SPECIAL_LOAD);
-        employee.setSalary(1500.0);
+        employeeDTO.setName("Updated Name");
+        employeeDTO.setQualification(EQualificationType.SPECIAL_LOAD);
+        employeeDTO.setSalary(1500.0);
 
-        assertEquals("Updated Name", employee.getName(), "Employee name update was not successful");
-        assertEquals(EQualificationType.SPECIAL_LOAD, employee.getQualification(), "Employee qualification update was not successful");
-        assertEquals(1500.0, employee.getSalary(), "Employee salary update was not successful");
+        assertEquals("Updated Name", employeeDTO.getName(), "Employee name update was not successful");
+        assertEquals(EQualificationType.SPECIAL_LOAD, employeeDTO.getQualification(), "Employee qualification update was not successful");
+        assertEquals(1500.0, employeeDTO.getSalary(), "Employee salary update was not successful");
 
-        employeeDAO.update(employee);
+        employeeDAO.update(employeeDTO);
     }
 
     @Test
     void testDelete() {
         Long employeeId = 1L;
 
-        Employee employee = employeeDAO.readById(employeeId);
-        assertNotNull(employee, "Employee with ID " + employeeId + " cannot be found in the database");
-
-        employeeDAO.delete(employee);
+        employeeDAO.delete(employeeId);
     }
 
     @Test
     void testReadAllSortedByQualification() {
-        List<Employee> employees = employeeDAO.readAllSortedByQualification();
+        List<EmployeeDTO> employeeDTOS = employeeDAO.readAllSortedByQualification();
 
-        if (employees.isEmpty()) {
+        if (employeeDTOS.isEmpty()) {
             System.out.println("No employees found in the database");
         } else {
             System.out.println("Employees sorted by QUALIFICATION (A-Z):");
-            for (Employee employee : employees) {
-                System.out.println("Employee ID: " + employee.getId());
-                System.out.println("Name: " + employee.getName());
-                System.out.println("Qualification: " + employee.getQualification());
-                System.out.println("Salary: " + employee.getSalary());
+            for (EmployeeDTO employeeDTO : employeeDTOS) {
+                System.out.println("Employee ID: " + employeeDTO.getId());
+                System.out.println("Name: " + employeeDTO.getName());
+                System.out.println("Qualification: " + employeeDTO.getQualification());
+                System.out.println("Salary: " + employeeDTO.getSalary());
 
-                System.out.println("Company ID: " + employee.getCompany().getId());
+                System.out.println("Company ID: " + employeeDTO.getCompanyId());
 
                 System.out.println("//////////////////////////////////////////////////");
             }
@@ -138,19 +113,19 @@ public class EmployeeDAOTest {
 
     @Test
     void testReadAllSortedBySalary() {
-        List<Employee> employees = employeeDAO.readAllSortedBySalary();
+        List<EmployeeDTO> employeeDTOS = employeeDAO.readAllSortedBySalary();
 
-        if (employees.isEmpty()) {
+        if (employeeDTOS.isEmpty()) {
             System.out.println("No employees found in the database");
         } else {
             System.out.println("Employees sorted by SALARY (lowest - highest):");
-            for (Employee employee : employees) {
-                System.out.println("Employee ID: " + employee.getId());
-                System.out.println("Name: " + employee.getName());
-                System.out.println("Qualification: " + employee.getQualification());
-                System.out.println("Salary: " + employee.getSalary());
+            for (EmployeeDTO employeeDTO : employeeDTOS) {
+                System.out.println("Employee ID: " + employeeDTO.getId());
+                System.out.println("Name: " + employeeDTO.getName());
+                System.out.println("Qualification: " + employeeDTO.getQualification());
+                System.out.println("Salary: " + employeeDTO.getSalary());
 
-                System.out.println("Company ID: " + employee.getCompany().getId());
+                System.out.println("Company ID: " + employeeDTO.getCompanyId());
 
                 System.out.println("//////////////////////////////////////////////////");
             }

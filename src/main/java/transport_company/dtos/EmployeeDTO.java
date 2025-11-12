@@ -1,49 +1,31 @@
-package transport_company.entities;
+package transport_company.dtos;
 
-import jakarta.validation.constraints.NotNull;
 import transport_company.enums.EQualificationType;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
-
-@Entity
-@Table(name = "employees")
-public class Employee {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class EmployeeDTO {
     private Long id;
-
-    @NotNull
-    @NotBlank
-    @Column(nullable = false, length = 50)
     private String name;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private EQualificationType qualification;
-
-    @NotNull
-    @Positive
-    @Column(nullable = false)
     private Double salary;
-
-    // //////////////////////////////////////////////////
-    // Relationships
-    // ////////////////////////////////////////////////
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id",
-            foreignKey = @ForeignKey(name = "fk_employee_company",
-                    foreignKeyDefinition = "FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE"),
-            nullable = false)
-    private Company company;
+    private Long companyId;
 
     // //////////////////////////////////////////////////
     // Constructors
     // ////////////////////////////////////////////////
-    public Employee() {
+
+    public EmployeeDTO() {
+    }
+
+    public EmployeeDTO(Long id,
+                       String name,
+                       EQualificationType qualification,
+                       Double salary,
+                       Long companyId) {
+        this.id = id;
+        this.name = name;
+        this.qualification = qualification;
+        this.salary = salary;
+        this.companyId = companyId;
     }
 
     // //////////////////////////////////////////////////
@@ -69,10 +51,7 @@ public class Employee {
     }
 
     public void setName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Employee name cannot be null or empty");
-        }
-        this.name = name.trim();
+        this.name = name;
     }
 
     // //////////////////////////////////////////////////
@@ -83,9 +62,6 @@ public class Employee {
     }
 
     public void setQualification(EQualificationType qualification) {
-        if (qualification == null) {
-            throw new IllegalArgumentException("Employee qualification cannot be null");
-        }
         this.qualification = qualification;
     }
 
@@ -97,20 +73,17 @@ public class Employee {
     }
 
     public void setSalary(Double salary) {
-        if (salary == null || salary <= 0) {
-            throw new IllegalArgumentException("Salary must be positive");
-        }
         this.salary = salary;
     }
 
     // //////////////////////////////////////////////////
     // Company
     // ////////////////////////////////////////////////
-    public Company getCompany() {
-        return company;
+    public Long getCompanyId() {
+        return companyId;
     }
 
-    public void setCompany(Company company) {
-        this.company = company;
+    public void setCompanyId(Long companyId) {
+        this.companyId = companyId;
     }
 }

@@ -1,14 +1,21 @@
 import transport_company.daos.ClientDAO;
 import transport_company.daos.CompanyDAO;
 import transport_company.daos.TransportDAO;
+import transport_company.dtos.ClientDTO;
+import transport_company.dtos.CompanyDTO;
+import transport_company.dtos.TransportDTO;
 import transport_company.entities.Client;
 import transport_company.entities.Transport;
 
 import org.junit.jupiter.api.Test;
+import transport_company.mappers.CompanyMapper;
+import transport_company.mappers.TransportMapper;
+import transport_company.services.ClientService;
 import transport_company.util.TransportJsonUtil;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,15 +25,15 @@ public class ClientDAOTest {
 
     @Test
     void testCreate() {
-        List<Client> clientsBefore = clientDAO.readAll();
+        List<ClientDTO> clientsBefore = clientDAO.readAll();
         int countBefore = clientsBefore.size();
 
-        Client newClient = new Client();
-        newClient.setName("New Client");
-        newClient.setCompanyById(1L);
-        clientDAO.create(newClient);
+        ClientDTO newClientDTO = new ClientDTO();
+        newClientDTO.setName("New Client");
+        newClientDTO.setCompanyId(1L);
+        clientDAO.create(newClientDTO);
 
-        List<Client> clientsAfter = clientDAO.readAll();
+        List<ClientDTO> clientsAfter = clientDAO.readAll();
         int countAfter = clientsAfter.size();
 
         assertTrue(countAfter > countBefore, "Client creation failed");
@@ -36,87 +43,46 @@ public class ClientDAOTest {
     void testReadById() {
         Long clientId = 1L;
 
-        Client client = clientDAO.readById(clientId);
-        assertNotNull(client, "Client with ID " + clientId + " cannot be found in the database");
+        ClientDTO clientDTO = clientDAO.readById(clientId);
+        assertNotNull(clientDTO, "Client with ID " + clientId + " cannot be found");
 
-        System.out.println("Client ID: " + client.getId());
-        System.out.println("Name: " + client.getName());
+        System.out.println("Client ID: " + clientDTO.getId());
+        System.out.println("Name: " + clientDTO.getName());
 
-        System.out.println("Company ID: " + client.getCompany().getId());
+        System.out.println("Company ID: " + clientDTO.getCompanyId());
 
         System.out.print("Transport IDs: ");
-        Set<Transport> transports = client.getTransports();
-        if (transports != null && !transports.isEmpty()) {
-            int count = 0;
-            for (Transport t : transports) {
-                System.out.print(t.getId());
-                count++;
-                if (count < transports.size()) {
-                    System.out.print(", ");
-                }
-            }
-        }
-    }
-
-    @Test
-    void testReadAllByCompanyId() {
-        Long companyId = 1L;
-
-        List<Client> clients = clientDAO.readAllByCompanyId(companyId);
-
-        if (clients.isEmpty()) {
-            System.out.println("No clients found for company ID " + companyId + " in the database");
-        } else {
-            for (Client client : clients) {
-                System.out.println("Client ID: " + client.getId());
-                System.out.println("Name: " + client.getName());
-
-                System.out.println("Company ID: " + client.getCompany().getId());
-
-                System.out.print("Transport IDs: ");
-                Set<Transport> transports = client.getTransports();
-                if (transports != null && !transports.isEmpty()) {
-                    int count = 0;
-                    for (Transport t : transports) {
-                        System.out.print(t.getId());
-                        count++;
-                        if (count < transports.size()) {
-                            System.out.print(", ");
-                        }
-                    }
-                }
-                System.out.println();
-                System.out.println("//////////////////////////////////////////////////");
-            }
+        Set<Long> transportIds = clientDTO.getTransportIds();
+        if (transportIds != null && !transportIds.isEmpty()) {
+            System.out.println(transportIds.stream().map(Object::toString).collect(Collectors.joining(", ")));
         }
     }
 
     @Test
     void testReadAll() {
-        List<Client> clients = clientDAO.readAll();
+        List<ClientDTO> clientDTOS = clientDAO.readAll();
 
-        if (clients.isEmpty()) {
-            System.out.println("No clients found in the database");
+        if (clientDTOS.isEmpty()) {
+            System.out.println("No clients found");
         } else {
-            for (Client client : clients) {
-                System.out.println("Client ID: " + client.getId());
-                System.out.println("Name: " + client.getName());
+            for (ClientDTO clientDTO : clientDTOS) {
+                System.out.println("Client ID: " + clientDTO.getId());
+                System.out.println("Name: " + clientDTO.getName());
 
-                System.out.println("Company ID: " + client.getCompany().getId());
+                System.out.println("Company ID: " + clientDTO.getCompanyId());
 
                 System.out.print("Transport IDs: ");
-                Set<Transport> transports = client.getTransports();
-                if (transports != null && !transports.isEmpty()) {
-                    int count = 0;
-                    for (Transport t : transports) {
-                        System.out.print(t.getId());
-                        count++;
-                        if (count < transports.size()) {
-                            System.out.print(", ");
-                        }
-                    }
+                Set<Long> transportIds = clientDTO.getTransportIds();
+                if (transportIds != null && !transportIds.isEmpty()) {
+                    System.out.println(String.join(", ",
+                            transportIds.stream()
+                                    .map(String::valueOf)
+                                    .toArray(String[]::new)
+                    ));
+                } else {
+                    System.out.println("No transports");
                 }
-                System.out.println();
+
                 System.out.println("//////////////////////////////////////////////////");
             }
         }
@@ -126,25 +92,22 @@ public class ClientDAOTest {
     void testUpdate() {
         Long clientId = 1L;
 
-        Client client = clientDAO.readById(clientId);
-        assertNotNull(client, "Client with ID " + clientId + " cannot be found in the database");
+        ClientDTO clientDTO = clientDAO.readById(clientId);
+        assertNotNull(clientDTO, "Client with ID " + clientId + " cannot be found");
 
         String newName = "Updated Name";
-        client.setName(newName);
+        clientDTO.setName(newName);
 
-        assertEquals(newName, client.getName(), "Client name update was not successful");
+        assertEquals(newName, clientDTO.getName(), "Client name update was not successful");
 
-        clientDAO.update(client);
+        clientDAO.update(clientDTO);
     }
 
     @Test
     void testDelete() {
         Long clientId = 1L;
 
-        Client client = clientDAO.readById(clientId);
-        assertNotNull(client, "Client with ID " + clientId + " cannot be found in the database");
-
-        clientDAO.delete(client);
+        clientDAO.delete(clientId);
     }
 
     @Test
@@ -155,26 +118,31 @@ public class ClientDAOTest {
         Long clientId = 1L;
         Long transportId = 1L;
 
-        Client client = clientDAO.readById(clientId);
+        Client client = clientDAO.readEntityById(clientId);
+        assertNotNull(client, "Client with ID " + clientId + " cannot be found");
 
-        client.payTransport(transportId, true);
+        ClientService clientService = new ClientService();
+        clientService.payTransport(clientId, transportId);
 
         Transport paidTransport = client.getTransports().stream()
                 .filter(t -> t.getId().equals(transportId))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError(
-                        "Transport with ID " + transportId + " not found in the database after update"));
+                        "Transport with ID " + transportId + " not found after update"
+                ));
 
         assertTrue(paidTransport.getPaidStatus(), "Transport paid status update was not successful");
 
-        double oldRevenue = client.getCompany().getRevenue();
-        double newRevenue = oldRevenue + paidTransport.getPrice();
-
+        Double oldRevenue = client.getCompany().getRevenue();
+        Double newRevenue = oldRevenue + paidTransport.getPrice();
         client.getCompany().setRevenue(newRevenue);
+
         assertEquals(client.getCompany().getRevenue(), newRevenue, "Company revenue update was not successful");
 
-        companyDAO.update(client.getCompany());
-        transportDAO.update(paidTransport);
+        CompanyDTO companyDTO = CompanyMapper.toDTO(client.getCompany());
+        companyDAO.update(companyDTO);
+        TransportDTO transportDTO = TransportMapper.toDTO(paidTransport);
+        transportDAO.update(transportDTO);
 
         TransportJsonUtil.saveTransport(paidTransport);
     }

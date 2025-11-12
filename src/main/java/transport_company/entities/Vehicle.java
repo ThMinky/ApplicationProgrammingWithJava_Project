@@ -3,12 +3,8 @@ package transport_company.entities;
 import jakarta.validation.constraints.NotNull;
 import transport_company.enums.EVehicleType;
 
-import transport_company.util.HibernateUtil;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
-
-import org.hibernate.Session;
 
 @Entity
 @Table(name = "vehicles")
@@ -28,22 +24,39 @@ public class Vehicle {
     @Column(nullable = false)
     private EVehicleType type; // BUS or TRUCK
 
+    // //////////////////////////////////////////////////
     // Relationships
+    // ////////////////////////////////////////////////
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id",
             foreignKey = @ForeignKey(name = "fk_vehicle_company",
                     foreignKeyDefinition = "FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE"))
     private Company company;
 
-    // Constructor
+    // //////////////////////////////////////////////////
+    // Constructors
+    // ////////////////////////////////////////////////
     public Vehicle() {
     }
 
+    // //////////////////////////////////////////////////
     // Getters & Setters
+    // ////////////////////////////////////////////////
+
+    // //////////////////////////////////////////////////
+    // Id
+    // ////////////////////////////////////////////////
     public Long getId() {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    // //////////////////////////////////////////////////
+    // Capacity
+    // ////////////////////////////////////////////////
     public Double getCapacity() {
         return capacity;
     }
@@ -55,6 +68,9 @@ public class Vehicle {
         this.capacity = capacity;
     }
 
+    // //////////////////////////////////////////////////
+    // Vehicle Type
+    // ////////////////////////////////////////////////
     public EVehicleType getType() {
         return type;
     }
@@ -66,27 +82,14 @@ public class Vehicle {
         this.type = type;
     }
 
+    // //////////////////////////////////////////////////
+    // Company
+    // ////////////////////////////////////////////////
     public Company getCompany() {
         return company;
     }
 
     public void setCompany(Company company) {
         this.company = company;
-    }
-
-    // Helper method
-    public void setCompanyById(Long companyId) {
-        if (companyId == null) {
-            this.company = null;
-            return;
-        }
-
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Company existingCompany = session.get(Company.class, companyId);
-            if (existingCompany == null) {
-                throw new IllegalArgumentException("Company with ID " + companyId + " does not exist in the database");
-            }
-            this.company = existingCompany;
-        }
     }
 }

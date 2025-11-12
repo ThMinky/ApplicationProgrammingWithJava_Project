@@ -1,6 +1,6 @@
 import transport_company.daos.VehicleDAO;
+import transport_company.dtos.VehicleDTO;
 import transport_company.enums.EVehicleType;
-import transport_company.entities.Vehicle;
 
 import org.junit.jupiter.api.Test;
 
@@ -14,16 +14,16 @@ public class VehicleDAOTest {
 
     @Test
     void testCreate() {
-        List<Vehicle> vehiclesBefore = vehicleDAO.readAll();
+        List<VehicleDTO> vehiclesBefore = vehicleDAO.readAll();
         int countBefore = vehiclesBefore.size();
 
-        Vehicle newVehicle = new Vehicle();
-        newVehicle.setCapacity(50.0);
-        newVehicle.setType(EVehicleType.BUS);
-        newVehicle.setCompanyById(1L);
-        vehicleDAO.create(newVehicle);
+        VehicleDTO vehicleDTO = new VehicleDTO();
+        vehicleDTO.setCapacity(50.0);
+        vehicleDTO.setType(EVehicleType.BUS);
+        vehicleDTO.setCompanyId(1L);
+        vehicleDAO.create(vehicleDTO);
 
-        List<Vehicle> vehiclesAfter = vehicleDAO.readAll();
+        List<VehicleDTO> vehiclesAfter = vehicleDAO.readAll();
         int countAfter = vehiclesAfter.size();
 
         assertTrue(countAfter > countBefore, "Vehicle creation failed");
@@ -33,47 +33,27 @@ public class VehicleDAOTest {
     void testReadById() {
         Long vehicleId = 1L;
 
-        Vehicle vehicle = vehicleDAO.readById(vehicleId);
-        assertNotNull(vehicle, "Vehicle with ID " + vehicleId + " cannot be found in the database");
+        VehicleDTO vehicleDTO = vehicleDAO.readById(vehicleId);
+        assertNotNull(vehicleDTO, "Vehicle with ID " + vehicleId + " cannot be found in the database");
 
-        System.out.println("Vehicle ID: " + vehicle.getId());
-        System.out.println("Capacity: " + vehicle.getCapacity());
-        System.out.println("Type: " + vehicle.getType());
-        System.out.println("Company ID: " + (vehicle.getCompany() != null ? vehicle.getCompany().getId() : "null"));
-    }
-
-    @Test
-    void testReadAllByCompanyId() {
-        Long companyId = 1L;
-
-        List<Vehicle> vehicles = vehicleDAO.readAllByCompanyId(companyId);
-
-        if (vehicles.isEmpty()) {
-            System.out.println("No vehicles found for company ID " + companyId + " in the database");
-        } else {
-            for (Vehicle vehicle : vehicles) {
-                System.out.println("Vehicle ID: " + vehicle.getId());
-                System.out.println("Capacity: " + vehicle.getCapacity());
-                System.out.println("Type: " + vehicle.getType());
-                System.out.println("Company ID: " + (vehicle.getCompany() != null ? vehicle.getCompany().getId() : "null"));
-
-                System.out.println("//////////////////////////////////////////////////");
-            }
-        }
+        System.out.println("Vehicle ID: " + vehicleDTO.getId());
+        System.out.println("Capacity: " + vehicleDTO.getCapacity());
+        System.out.println("Type: " + vehicleDTO.getType());
+        System.out.println("Company ID: " + (vehicleDTO.getCompanyId() != null ? vehicleDTO.getCompanyId() : "null"));
     }
 
     @Test
     void testReadAll() {
-        List<Vehicle> vehicles = vehicleDAO.readAll();
+        List<VehicleDTO> vehicleDTOS = vehicleDAO.readAll();
 
-        if (vehicles.isEmpty()) {
+        if (vehicleDTOS.isEmpty()) {
             System.out.println("No vehicles found in the database");
         } else {
-            for (Vehicle vehicle : vehicles) {
-                System.out.println("Vehicle ID: " + vehicle.getId());
-                System.out.println("Capacity: " + vehicle.getCapacity());
-                System.out.println("Type: " + vehicle.getType());
-                System.out.println("Company ID: " + (vehicle.getCompany() != null ? vehicle.getCompany().getId() : "null"));
+            for (VehicleDTO vehicleDTO : vehicleDTOS) {
+                System.out.println("Vehicle ID: " + vehicleDTO.getId());
+                System.out.println("Capacity: " + vehicleDTO.getCapacity());
+                System.out.println("Type: " + vehicleDTO.getType());
+                System.out.println("Company ID: " + (vehicleDTO.getCompanyId() != null ? vehicleDTO.getCompanyId() : "null"));
 
                 System.out.println("//////////////////////////////////////////////////");
             }
@@ -84,25 +64,22 @@ public class VehicleDAOTest {
     void testUpdate() {
         Long vehicleId = 1L;
 
-        Vehicle vehicle = vehicleDAO.readById(vehicleId);
-        assertNotNull(vehicle, "Vehicle with ID " + vehicleId + " cannot be found in the database");
+        VehicleDTO vehicleDTO = vehicleDAO.readById(vehicleId);
+        assertNotNull(vehicleDTO, "Vehicle with ID " + vehicleId + " cannot be found in the database");
 
-        vehicle.setCapacity(2000.0);
-        vehicle.setType(EVehicleType.TRUCK);
+        vehicleDTO.setCapacity(2000.0);
+        vehicleDTO.setType(EVehicleType.TRUCK);
 
-        assertEquals(2000.0, vehicle.getCapacity(), "Vehicle capacity update was not successful");
-        assertEquals(EVehicleType.TRUCK, vehicle.getType(), "Vehicle type update was not successful");
+        assertEquals(2000.0, vehicleDTO.getCapacity(), "Vehicle capacity update was not successful");
+        assertEquals(EVehicleType.TRUCK, vehicleDTO.getType(), "Vehicle type update was not successful");
 
-        vehicleDAO.update(vehicle);
+        vehicleDAO.update(vehicleDTO);
     }
 
     @Test
     void testDelete() {
         Long vehicleId = 1L;
 
-        Vehicle vehicle = vehicleDAO.readById(vehicleId);
-        assertNotNull(vehicle, "Vehicle with ID " + vehicleId + " cannot be found in the database");
-
-        vehicleDAO.delete(vehicle);
+        vehicleDAO.delete(vehicleId);
     }
 }
