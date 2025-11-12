@@ -1,6 +1,5 @@
 package transport_company.daos;
 
-import org.hibernate.Hibernate;
 import transport_company.dtos.TransportDTO;
 import transport_company.entities.*;
 import transport_company.mappers.TransportMapper;
@@ -42,7 +41,6 @@ public class TransportDAO {
             tx.commit();
         }
     }
-
 
     public TransportDTO readById(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {

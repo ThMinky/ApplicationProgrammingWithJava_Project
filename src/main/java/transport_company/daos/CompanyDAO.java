@@ -92,7 +92,7 @@ public class CompanyDAO {
 
     // //////////////////////////////////////////////////
     // Helpers
-    // ////////////////////////////////////////////////
+    // //////////////////////////////////////////////////
     public Company readByIdWithTransports(Long companyId) {
         if (companyId == null) {
             throw new IllegalArgumentException("Company ID cannot be null");

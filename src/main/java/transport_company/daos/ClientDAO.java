@@ -83,7 +83,7 @@ public class ClientDAO {
 
     // //////////////////////////////////////////////////
     // Helpers
-    // ////////////////////////////////////////////////
+    // //////////////////////////////////////////////////
     public Client readEntityById(Long clientId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery(

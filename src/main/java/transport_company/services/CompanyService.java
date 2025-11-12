@@ -9,13 +9,17 @@ public class CompanyService {
 
     private final CompanyDAO companyDAO = new CompanyDAO();
 
+    // //////////////////////////////////////////////////
     // Regular DTO-based method
+    // //////////////////////////////////////////////////
     public CompanyDTO getCompanyById(Long companyId) {
         Company company = companyDAO.readByIdWithTransports(companyId);
         return CompanyMapper.toDTO(company);
     }
 
+    // //////////////////////////////////////////////////
     // Internal-only method
+    // //////////////////////////////////////////////////
     public Company getCompanyEntityById(Long companyId) {
         return companyDAO.readByIdWithTransports(companyId);
     }

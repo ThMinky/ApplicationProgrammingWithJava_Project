@@ -1,15 +1,9 @@
 import transport_company.daos.ClientDAO;
-import transport_company.daos.CompanyDAO;
-import transport_company.daos.TransportDAO;
 import transport_company.dtos.ClientDTO;
-import transport_company.dtos.CompanyDTO;
-import transport_company.dtos.TransportDTO;
 import transport_company.entities.Client;
 import transport_company.entities.Transport;
 
 import org.junit.jupiter.api.Test;
-import transport_company.mappers.CompanyMapper;
-import transport_company.mappers.TransportMapper;
 import transport_company.services.ClientService;
 import transport_company.util.TransportJsonUtil;
 
@@ -113,7 +107,7 @@ public class ClientDAOTest {
     @Test
     void testTransportPayingStatus() {
         Long clientId = 1L;
-        Long transportId = 4L;
+        Long transportId = 1L;
 
         Client client = clientDAO.readEntityById(clientId);
         assertNotNull(client, "Client with ID " + clientId + " cannot be found");
@@ -137,7 +131,6 @@ public class ClientDAOTest {
 
         TransportJsonUtil.saveTransport(paidTransport);
     }
-
 
     @Test
     void testPrintAllTransportsFromJson() {
