@@ -32,8 +32,8 @@ public class TransportDAOTest {
         transportDTO.setPaidStatus(false);
         transportDTO.setCompanyId(1L);
         transportDTO.setClientId(1L);
-        transportDTO.setVehicleId(3L);
-        transportDTO.setDriverId(4L);
+        transportDTO.setVehicleId(1L);
+        transportDTO.setDriverId(1L);
         transportDAO.create(transportDTO);
 
         List<TransportDTO> transportsAfter = transportDAO.readAll();
@@ -114,8 +114,8 @@ public class TransportDAOTest {
         transportDTO.setPaidStatus(true);
 
         // Change driver and vehicle
-        // transportDTO.setDriverId(1L);
-        // transportDTO.setVehicleId(1L);
+        transportDTO.setDriverId(2L);
+        transportDTO.setVehicleId(2L);
 
         assertEquals("Sofia", transportDTO.getStartLocation(), "Start location update was not successful");
         assertEquals("Varna", transportDTO.getEndLocation(), "End location update was not successful");

@@ -84,14 +84,19 @@ public class ClientDAO {
     // //////////////////////////////////////////////////
     // Helpers
     // ////////////////////////////////////////////////
-    public Client readEntityById(Long id) {
+    public Client readEntityById(Long clientId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Client client = session.get(Client.class, id);
-            if (client != null) {
-                Hibernate.initialize(client.getCompany());
-                Hibernate.initialize(client.getTransports());
-            }
-            return client;
+            return session.createQuery(
+                            "SELECT DISTINCT c FROM Client c " +
+                                    "LEFT JOIN FETCH c.transports t " +
+                                    "LEFT JOIN FETCH c.company comp " +
+                                    "LEFT JOIN FETCH comp.clients " +
+                                    "LEFT JOIN FETCH comp.employees " +
+                                    "LEFT JOIN FETCH comp.transports " +
+                                    "LEFT JOIN FETCH comp.vehicles " +
+                                    "WHERE c.id = :id", Client.class)
+                    .setParameter("id", clientId)
+                    .uniqueResult();
         }
     }
 }

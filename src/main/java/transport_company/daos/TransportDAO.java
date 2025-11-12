@@ -1,5 +1,6 @@
 package transport_company.daos;
 
+import org.hibernate.Hibernate;
 import transport_company.dtos.TransportDTO;
 import transport_company.entities.*;
 import transport_company.mappers.TransportMapper;
@@ -82,15 +83,17 @@ public class TransportDAO {
             managed.setPrice(dto.getPrice());
             managed.setPaidStatus(dto.getPaidStatus());
 
-            if (dto.getDriverId() != null) {
-                Employee driver = session.get(Employee.class, dto.getDriverId());
-                managed.setDriver(driver); // fully loaded for validation
+            Employee driver = session.get(Employee.class, dto.getDriverId());
+            if (driver == null) {
+                throw new IllegalArgumentException("Driver with ID " + dto.getDriverId() + " does not exist");
             }
+            managed.setDriver(driver);
 
-            if (dto.getVehicleId() != null) {
-                Vehicle vehicle = session.get(Vehicle.class, dto.getVehicleId());
-                managed.setVehicle(vehicle); // fully loaded for validation
+            Vehicle vehicle = session.get(Vehicle.class, dto.getVehicleId());
+            if (vehicle == null) {
+                throw new IllegalArgumentException("Vehicle with ID " + dto.getVehicleId() + " does not exist");
             }
+            managed.setVehicle(vehicle);
 
             managed.setTransportSpecification(dto.getTransportSpecification());
 

@@ -1,0 +1,12 @@
+[ {
+  "id" : 4,
+  "startLocation" : "A",
+  "endLocation" : "B",
+  "departTime" : "2025-11-12 17:35",
+  "arriveTime" : "2025-11-12 22:35",
+  "cargoType" : "PEOPLE",
+  "weight" : 0.0,
+  "transportSpecification" : "PASSENGER",
+  "price" : 1500.0,
+  "paidStatus" : true
+} ]

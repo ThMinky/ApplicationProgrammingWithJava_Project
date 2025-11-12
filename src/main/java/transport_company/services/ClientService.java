@@ -3,9 +3,8 @@ package transport_company.services;
 import transport_company.daos.ClientDAO;
 import transport_company.daos.TransportDAO;
 import transport_company.daos.CompanyDAO;
-import transport_company.dtos.CompanyDTO;
-import transport_company.dtos.TransportDTO;
 import transport_company.entities.Client;
+import transport_company.entities.Company;
 import transport_company.entities.Transport;
 import transport_company.mappers.CompanyMapper;
 import transport_company.mappers.TransportMapper;
@@ -18,6 +17,9 @@ public class ClientService {
 
     public void payTransport(Long clientId, Long transportId) {
         Client client = clientDAO.readEntityById(clientId);
+        if (client == null) {
+            throw new IllegalArgumentException("Client not found with ID " + clientId);
+        }
 
         Transport transport = client.getTransports().stream()
                 .filter(t -> t.getId().equals(transportId))
@@ -30,13 +32,10 @@ public class ClientService {
 
         transport.setPaidStatus(true);
 
-        Double newRevenue = client.getCompany().getRevenue() + transport.getPrice();
-        client.getCompany().setRevenue(newRevenue);
+        Company company = client.getCompany();
+        company.setRevenue(company.getRevenue() + transport.getPrice());
 
-        TransportDTO transportDTO = TransportMapper.toDTO(transport);
-        transportDAO.update(transportDTO);
-
-        CompanyDTO companyDTO = CompanyMapper.toDTO(client.getCompany());
-        companyDAO.update(companyDTO);
+        transportDAO.update(TransportMapper.toDTO(transport));
+        companyDAO.update(CompanyMapper.toDTO(company));
     }
 }
