@@ -1,11 +1,20 @@
 package transport_company.dtos;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import transport_company.enums.EVehicleType;
 
 public class VehicleDTO {
     private Long id;
+
+    @NotNull(message = "Vehicle capacity cannot be null")
+    @Positive(message = "Vehicle capacity must be positive")
     private Double capacity;
+
+    @NotNull(message = "Vehicle type cannot be null")
     private EVehicleType type;
+
+    @NotNull(message = "Vehicle must have a company ID")
     private Long companyId;
 
     // //////////////////////////////////////////////////

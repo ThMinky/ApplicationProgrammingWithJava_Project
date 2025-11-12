@@ -1,10 +1,8 @@
 package transport_company.entities;
 
-import jakarta.validation.constraints.NotNull;
 import transport_company.enums.EVehicleType;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "vehicles")
@@ -14,15 +12,10 @@ public class Vehicle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Positive
-    @Column(nullable = false)
     private Double capacity;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EVehicleType type; // BUS or TRUCK
+    private EVehicleType type;
 
     // //////////////////////////////////////////////////
     // Relationships
@@ -62,9 +55,6 @@ public class Vehicle {
     }
 
     public void setCapacity(Double capacity) {
-        if (capacity == null || capacity <= 0) {
-            throw new IllegalArgumentException("Vehicle capacity must be positive");
-        }
         this.capacity = capacity;
     }
 
@@ -76,9 +66,6 @@ public class Vehicle {
     }
 
     public void setType(EVehicleType type) {
-        if (type == null) {
-            throw new IllegalArgumentException("Vehicle type cannot be null");
-        }
         this.type = type;
     }
 

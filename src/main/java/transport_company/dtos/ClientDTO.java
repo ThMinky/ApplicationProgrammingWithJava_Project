@@ -1,12 +1,23 @@
 package transport_company.dtos;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 import java.util.HashSet;
 import java.util.Set;
 
 public class ClientDTO {
     private Long id;
+
+    @NotNull(message = "Client name cannot be null")
+    @NotBlank(message = "Client name cannot be blank")
+    @Size(max = 50, message = "Client name must be at most 50 characters")
     private String name;
+
+    @NotNull(message = "Client must have a company ID")
     private Long companyId;
+
     private Set<Long> transportIds = new HashSet<>();
 
     // //////////////////////////////////////////////////
@@ -71,26 +82,10 @@ public class ClientDTO {
     }
 
     public void addTransportById(Long transportId) {
-        if (transportId == null) {
-            throw new IllegalArgumentException("Transport ID cannot be null");
-        }
-
-        if (transportIds.contains(transportId)) {
-            throw new IllegalStateException("This transport ID is already from this client");
-        }
-
         transportIds.add(transportId);
     }
 
     public void removeTransportById(Long transportId) {
-        if (transportId == null) {
-            throw new IllegalArgumentException("Transport ID cannot be null");
-        }
-
-        if (!transportIds.contains(transportId)) {
-            throw new IllegalStateException("This transport ID is not from this client");
-        }
-
         transportIds.remove(transportId);
     }
 }

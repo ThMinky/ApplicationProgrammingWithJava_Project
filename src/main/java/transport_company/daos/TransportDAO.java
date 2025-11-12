@@ -2,6 +2,9 @@ package transport_company.daos;
 
 import transport_company.dtos.TransportDTO;
 import transport_company.entities.*;
+import transport_company.enums.EQualificationType;
+import transport_company.enums.ETransportSpecificationType;
+import transport_company.enums.EVehicleType;
 import transport_company.mappers.TransportMapper;
 import transport_company.util.HibernateUtil;
 
@@ -25,17 +28,23 @@ public class TransportDAO {
 
             Transport transport = TransportMapper.toEntity(dto);
 
+            Employee driver = null;
             if (dto.getDriverId() != null) {
-                Employee driver = session.get(Employee.class, dto.getDriverId());
-                transport.setDriver(driver);  // fully loaded for validation
+                driver = session.get(Employee.class, dto.getDriverId());
+                if (driver == null)
+                    throw new IllegalArgumentException("Driver with ID " + dto.getDriverId() + " does not exist");
+                transport.setDriver(driver);
             }
 
+            Vehicle vehicle = null;
             if (dto.getVehicleId() != null) {
-                Vehicle vehicle = session.get(Vehicle.class, dto.getVehicleId());
-                transport.setVehicle(vehicle);  // fully loaded for validation
+                vehicle = session.get(Vehicle.class, dto.getVehicleId());
+                if (vehicle == null)
+                    throw new IllegalArgumentException("Vehicle with ID " + dto.getVehicleId() + " does not exist");
+                transport.setVehicle(vehicle);
             }
 
-            transport.setTransportSpecification(dto.getTransportSpecification());
+            validateCompatibility(dto.getTransportSpecification(), driver, vehicle);
 
             session.persist(transport);
             tx.commit();
@@ -76,7 +85,7 @@ public class TransportDAO {
             managed.setDepartTime(dto.getDepartTime());
             managed.setArriveTime(dto.getArriveTime());
             managed.setCargoType(dto.getCargoType());
-            // managed.setTransportSpecification(dto.getTransportSpecification());
+            managed.setTransportSpecification(dto.getTransportSpecification());
             managed.setWeight(dto.getWeight());
             managed.setPrice(dto.getPrice());
             managed.setPaidStatus(dto.getPaidStatus());
@@ -85,14 +94,16 @@ public class TransportDAO {
             if (driver == null) {
                 throw new IllegalArgumentException("Driver with ID " + dto.getDriverId() + " does not exist");
             }
-            managed.setDriver(driver);
 
             Vehicle vehicle = session.get(Vehicle.class, dto.getVehicleId());
             if (vehicle == null) {
                 throw new IllegalArgumentException("Vehicle with ID " + dto.getVehicleId() + " does not exist");
             }
-            managed.setVehicle(vehicle);
 
+            validateCompatibility(dto.getTransportSpecification(), driver, vehicle);
+
+            managed.setDriver(driver);
+            managed.setVehicle(vehicle);
             managed.setTransportSpecification(dto.getTransportSpecification());
 
             tx.commit();
@@ -114,6 +125,41 @@ public class TransportDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             List<Transport> transports = session.createQuery("FROM Transport t ORDER BY t.endLocation ASC", Transport.class).list();
             return transports.stream().map(TransportMapper::toDTO).collect(Collectors.toList());
+        }
+    }
+
+    // //////////////////////////////////////////////////
+    // Helpers
+    // //////////////////////////////////////////////////
+    private void validateCompatibility(ETransportSpecificationType spec, Employee driver, Vehicle vehicle) {
+        if (spec == null) return;
+
+        if (driver != null) {
+            EQualificationType expected = switch (spec) {
+                case PASSENGER -> EQualificationType.PASSENGER;
+                case GOODS_SPECIAL -> EQualificationType.SPECIAL_LOAD;
+                case GOODS_HAZARDOUS -> EQualificationType.HAZARDOUS_MATERIAL;
+            };
+            if (driver.getQualification() != expected) {
+                throw new IllegalArgumentException(
+                        "Driver qualification " + driver.getQualification() +
+                                " does not match transport specification " + spec
+                );
+            }
+        }
+
+        if (vehicle != null) {
+            EVehicleType expected = switch (spec) {
+                case PASSENGER -> EVehicleType.BUS;
+                case GOODS_SPECIAL -> EVehicleType.TRUCK;
+                case GOODS_HAZARDOUS -> EVehicleType.TANK;
+            };
+            if (vehicle.getType() != expected) {
+                throw new IllegalArgumentException(
+                        "Vehicle type " + vehicle.getType() +
+                                " does not match transport specification " + spec
+                );
+            }
         }
     }
 }

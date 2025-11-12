@@ -1,9 +1,6 @@
 package transport_company.entities;
 
-import jakarta.validation.constraints.NotNull;
-
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,13 +13,7 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @NotBlank
-    @Column(nullable = false, length = 50)
     private String name;
-
-    @NotNull
-    @Column(nullable = false)
     private Double revenue;
 
     // //////////////////////////////////////////////////
@@ -69,10 +60,7 @@ public class Company {
     }
 
     public void setName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Company name cannot be null or empty");
-        }
-        this.name = name.trim();
+        this.name = name;
     }
 
     // //////////////////////////////////////////////////
@@ -83,9 +71,6 @@ public class Company {
     }
 
     public void setRevenue(Double revenue) {
-        if (revenue == null || revenue < 0) {
-            throw new IllegalArgumentException("Revenue must be positive");
-        }
         this.revenue = revenue;
     }
 
@@ -97,26 +82,10 @@ public class Company {
     }
 
     public void addClient(Client client) {
-        if (client == null) {
-            throw new IllegalArgumentException("Client cannot be null");
-        }
-
-        if (clients.contains(client)) {
-            throw new IllegalStateException("This client is already in the company");
-        }
-
         clients.add(client);
     }
 
     public void removeClient(Client client) {
-        if (client == null) {
-            throw new IllegalArgumentException("Client cannot be null");
-        }
-
-        if (!clients.contains(client)) {
-            throw new IllegalStateException("This client is not in the company");
-        }
-
         clients.remove(client);
     }
 
@@ -128,26 +97,10 @@ public class Company {
     }
 
     public void addEmployee(Employee employee) {
-        if (employee == null) {
-            throw new IllegalArgumentException("Employee cannot be null");
-        }
-
-        if (employees.contains(employee)) {
-            throw new IllegalStateException("This employee is already in the company");
-        }
-
         employees.add(employee);
     }
 
     public void removeEmployee(Employee employee) {
-        if (employee == null) {
-            throw new IllegalArgumentException("Employee cannot be null");
-        }
-
-        if (!employees.contains(employee)) {
-            throw new IllegalStateException("This employee is not in the company");
-        }
-
         employees.remove(employee);
     }
 
@@ -159,26 +112,10 @@ public class Company {
     }
 
     public void addTransport(Transport transport) {
-        if (transport == null) {
-            throw new IllegalArgumentException("Transport cannot be null");
-        }
-
-        if (transports.contains(transport)) {
-            throw new IllegalStateException("This transport is already in the company");
-        }
-
         transports.add(transport);
     }
 
     public void removeTransport(Transport transport) {
-        if (transport == null) {
-            throw new IllegalArgumentException("Transport cannot be null");
-        }
-
-        if (!transports.contains(transport)) {
-            throw new IllegalStateException("This transport is not in the company");
-        }
-
         transports.remove(transport);
     }
 
@@ -190,26 +127,10 @@ public class Company {
     }
 
     public void addVehicle(Vehicle vehicle) {
-        if (vehicle == null) {
-            throw new IllegalArgumentException("Vehicle cannot be null");
-        }
-
-        if (vehicles.contains(vehicle)) {
-            throw new IllegalStateException("This vehicle is already in the company");
-        }
-
         vehicles.add(vehicle);
     }
 
     public void removeVehicle(Vehicle vehicle) {
-        if (vehicle == null) {
-            throw new IllegalArgumentException("Vehicle cannot be null");
-        }
-
-        if (!vehicles.contains(vehicle)) {
-            throw new IllegalStateException("This vehicle is not in the company");
-        }
-
         vehicles.remove(vehicle);
     }
 }

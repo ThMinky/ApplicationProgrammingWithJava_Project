@@ -1,11 +1,8 @@
 package transport_company.entities;
 
-import jakarta.validation.constraints.NotNull;
 import transport_company.enums.EQualificationType;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "employees")
@@ -15,19 +12,11 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @NotBlank
-    @Column(nullable = false, length = 50)
     private String name;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private EQualificationType qualification;
 
-    @NotNull
-    @Positive
-    @Column(nullable = false)
     private Double salary;
 
     // //////////////////////////////////////////////////
@@ -69,10 +58,7 @@ public class Employee {
     }
 
     public void setName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Employee name cannot be null or empty");
-        }
-        this.name = name.trim();
+        this.name = name;
     }
 
     // //////////////////////////////////////////////////
@@ -83,9 +69,6 @@ public class Employee {
     }
 
     public void setQualification(EQualificationType qualification) {
-        if (qualification == null) {
-            throw new IllegalArgumentException("Employee qualification cannot be null");
-        }
         this.qualification = qualification;
     }
 
@@ -97,9 +80,6 @@ public class Employee {
     }
 
     public void setSalary(Double salary) {
-        if (salary == null || salary <= 0) {
-            throw new IllegalArgumentException("Salary must be positive");
-        }
         this.salary = salary;
     }
 

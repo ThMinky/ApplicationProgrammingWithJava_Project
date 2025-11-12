@@ -1,12 +1,22 @@
 package transport_company.dtos;
 
+import jakarta.validation.constraints.*;
+
 import java.util.HashSet;
 import java.util.Set;
 
 public class CompanyDTO {
     private Long id;
+
+    @NotNull(message = "Company name cannot be null")
+    @NotBlank(message = "Company name cannot be blank")
+    @Size(max = 50, message = "Company name must be at most 50 characters")
     private String name;
+
+    @NotNull(message = "Revenue cannot be null")
+    @PositiveOrZero(message = "Revenue must be positive")
     private Double revenue;
+
     private Set<Long> clientIds = new HashSet<>();
     private Set<Long> employeeIds = new HashSet<>();
     private Set<Long> transportIds = new HashSet<>();
@@ -80,26 +90,10 @@ public class CompanyDTO {
     }
 
     public void addClientById(Long clientId) {
-        if (clientId == null) {
-            throw new IllegalArgumentException("Client ID cannot be null");
-        }
-
-        if (clientIds.contains(clientId)) {
-            throw new IllegalStateException("This client ID is already in the company");
-        }
-
         clientIds.add(clientId);
     }
 
     public void removeClientById(Long clientId) {
-        if (clientId == null) {
-            throw new IllegalArgumentException("Client ID cannot be null");
-        }
-
-        if (!clientIds.contains(clientId)) {
-            throw new IllegalStateException("This client ID is not in the company");
-        }
-
         clientIds.remove(clientId);
     }
 
@@ -111,26 +105,10 @@ public class CompanyDTO {
     }
 
     public void addEmployeeById(Long employeeId) {
-        if (employeeId == null) {
-            throw new IllegalArgumentException("Employee ID cannot be null");
-        }
-
-        if (employeeIds.contains(employeeId)) {
-            throw new IllegalStateException("This employee ID is already in the company");
-        }
-
         employeeIds.add(employeeId);
     }
 
     public void removeEmployeeById(Long employeeId) {
-        if (employeeId == null) {
-            throw new IllegalArgumentException("Employee ID cannot be null");
-        }
-
-        if (!employeeIds.contains(employeeId)) {
-            throw new IllegalStateException("This employee ID is not in the company");
-        }
-
         employeeIds.remove(employeeId);
     }
 
@@ -142,26 +120,10 @@ public class CompanyDTO {
     }
 
     public void addTransportById(Long transportId) {
-        if (transportId == null) {
-            throw new IllegalArgumentException("Transport ID cannot be null");
-        }
-
-        if (transportIds.contains(transportId)) {
-            throw new IllegalStateException("This transport ID is already in the company");
-        }
-
         transportIds.add(transportId);
     }
 
     public void removeTransportById(Long transportId) {
-        if (transportId == null) {
-            throw new IllegalArgumentException("Transport ID cannot be null");
-        }
-
-        if (!transportIds.contains(transportId)) {
-            throw new IllegalStateException("This transport ID is not in the company");
-        }
-
         transportIds.remove(transportId);
     }
 
@@ -173,26 +135,10 @@ public class CompanyDTO {
     }
 
     public void addVehicle(Long vehicleId) {
-        if (vehicleId == null) {
-            throw new IllegalArgumentException("Vehicle ID cannot be null");
-        }
-
-        if (vehicleIds.contains(vehicleId)) {
-            throw new IllegalStateException("This vehicle ID is already in the company");
-        }
-
         vehicleIds.add(vehicleId);
     }
 
     public void removeVehicle(Long vehicleId) {
-        if (vehicleId == null) {
-            throw new IllegalArgumentException("Vehicle ID cannot be null");
-        }
-
-        if (!vehicleIds.contains(vehicleId)) {
-            throw new IllegalStateException("This vehicle ID is not in the company");
-        }
-
         vehicleIds.remove(vehicleId);
     }
 }

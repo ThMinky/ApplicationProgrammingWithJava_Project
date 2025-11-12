@@ -1,3 +1,4 @@
+import transport_company.EntityValidator;
 import transport_company.daos.ClientDAO;
 import transport_company.dtos.ClientDTO;
 import transport_company.entities.Client;
@@ -25,6 +26,7 @@ public class ClientDAOTest {
         ClientDTO newClientDTO = new ClientDTO();
         newClientDTO.setName("New Client");
         newClientDTO.setCompanyId(1L);
+        EntityValidator.validate(newClientDTO);
         clientDAO.create(newClientDTO);
 
         List<ClientDTO> clientsAfter = clientDAO.readAll();
@@ -94,6 +96,7 @@ public class ClientDAOTest {
 
         assertEquals(newName, clientDTO.getName(), "Client name update was not successful");
 
+        EntityValidator.validate(clientDTO);
         clientDAO.update(clientDTO);
     }
 
@@ -112,11 +115,15 @@ public class ClientDAOTest {
         Client client = clientDAO.readEntityById(clientId);
         assertNotNull(client, "Client with ID " + clientId + " cannot be found");
 
+        Double oldRevenue = client.getCompany().getRevenue();
+
         ClientService clientService = new ClientService();
         clientService.payTransport(clientId, transportId);
 
-        client = clientDAO.readEntityById(clientId);
-        Transport paidTransport = client.getTransports().stream()
+        Client updatedClient = clientDAO.readEntityById(clientId);
+        assertNotNull(updatedClient, "Client could not be reloaded from database");
+
+        Transport paidTransport = updatedClient.getTransports().stream()
                 .filter(t -> t.getId().equals(transportId))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError(
@@ -125,9 +132,9 @@ public class ClientDAOTest {
 
         assertTrue(paidTransport.getPaidStatus(), "Transport paid status update was not successful");
 
-        Double newRevenue = client.getCompany().getRevenue();
-        Double expectedRevenue = paidTransport.getPrice() + /* previous revenue value, if tracked */ 0.0;
-        assertTrue(newRevenue >= expectedRevenue, "Company revenue was not updated correctly");
+        Double newRevenue = updatedClient.getCompany().getRevenue();
+        Double expectedRevenue = oldRevenue + paidTransport.getPrice();
+        assertEquals(expectedRevenue, newRevenue, "Company revenue was not updated correctly");
 
         TransportJsonUtil.saveTransport(paidTransport);
     }

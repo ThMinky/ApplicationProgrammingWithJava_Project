@@ -1,3 +1,4 @@
+import transport_company.EntityValidator;
 import transport_company.daos.TransportDAO;
 import transport_company.dtos.TransportDTO;
 import transport_company.enums.ECargoType;
@@ -20,21 +21,22 @@ public class TransportDAOTest {
         List<TransportDTO> transportsBefore = transportDAO.readAll();
         int countBefore = transportsBefore.size();
 
-        TransportDTO transportDTO = new TransportDTO();
-        transportDTO.setStartLocation("A");
-        transportDTO.setEndLocation("B");
-        transportDTO.setDepartTime(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
-        transportDTO.setArriveTime(LocalDateTime.now().plusHours(5).truncatedTo(ChronoUnit.MINUTES));
-        transportDTO.setCargoType(ECargoType.PEOPLE);
-        transportDTO.setTransportSpecification(ETransportSpecificationType.PASSENGER);
-        transportDTO.setWeight(0.0);
-        transportDTO.setPrice(1500.0);
-        transportDTO.setPaidStatus(false);
-        transportDTO.setCompanyId(1L);
-        transportDTO.setClientId(1L);
-        transportDTO.setVehicleId(1L);
-        transportDTO.setDriverId(1L);
-        transportDAO.create(transportDTO);
+        TransportDTO newTransportDTO = new TransportDTO();
+        newTransportDTO.setStartLocation("A");
+        newTransportDTO.setEndLocation("B");
+        newTransportDTO.setDepartTime(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        newTransportDTO.setArriveTime(LocalDateTime.now().plusHours(5).truncatedTo(ChronoUnit.MINUTES));
+        newTransportDTO.setCargoType(ECargoType.PEOPLE);
+        newTransportDTO.setTransportSpecification(ETransportSpecificationType.PASSENGER);
+        newTransportDTO.setWeight(0.0);
+        newTransportDTO.setPrice(1500.0);
+        newTransportDTO.setPaidStatus(false);
+        newTransportDTO.setCompanyId(1L);
+        newTransportDTO.setClientId(1L);
+        newTransportDTO.setVehicleId(1L);
+        newTransportDTO.setDriverId(1L);
+        EntityValidator.validate(newTransportDTO);
+        transportDAO.create(newTransportDTO);
 
         List<TransportDTO> transportsAfter = transportDAO.readAll();
         int countAfter = transportsAfter.size();
@@ -47,7 +49,7 @@ public class TransportDAOTest {
         Long transportId = 1L;
 
         TransportDTO transportDTO = transportDAO.readById(transportId);
-        assertNotNull(transportDTO, "Transport with ID " + transportId + " cannot be found in the database");
+        assertNotNull(transportDTO, "Transport with ID " + transportId + " cannot be found");
 
         System.out.println("Transport ID: " + transportDTO.getId());
         System.out.println("Start Location: " + transportDTO.getStartLocation());
@@ -71,7 +73,7 @@ public class TransportDAOTest {
         List<TransportDTO> transportDTOS = transportDAO.readAll();
 
         if (transportDTOS.isEmpty()) {
-            System.out.println("No transports found in the database");
+            System.out.println("No transports found");
         } else {
             for (TransportDTO transportDTO : transportDTOS) {
                 System.out.println("Transport ID: " + transportDTO.getId());
@@ -101,7 +103,7 @@ public class TransportDAOTest {
 
         TransportDTO transportDTO = transportDAO.readById(transportId);
 
-        assertNotNull(transportDTO, "Transport with ID " + transportId + " cannot be found in the database");
+        assertNotNull(transportDTO, "Transport with ID " + transportId + " cannot be found");
 
         transportDTO.setStartLocation("Sofia");
         transportDTO.setEndLocation("Varna");
@@ -114,8 +116,8 @@ public class TransportDAOTest {
         transportDTO.setPaidStatus(true);
 
         // Change driver and vehicle
-        transportDTO.setDriverId(2L);
-        transportDTO.setVehicleId(2L);
+        transportDTO.setDriverId(1L);
+        transportDTO.setVehicleId(1L);
 
         assertEquals("Sofia", transportDTO.getStartLocation(), "Start location update was not successful");
         assertEquals("Varna", transportDTO.getEndLocation(), "End location update was not successful");
@@ -129,6 +131,7 @@ public class TransportDAOTest {
         assertEquals(1500.0, transportDTO.getPrice(), "Price update was not successful");
         assertTrue(transportDTO.getPaidStatus(), "Paid status update was not successful");
 
+        EntityValidator.validate(transportDTO);
         transportDAO.update(transportDTO);
     }
 
@@ -144,7 +147,7 @@ public class TransportDAOTest {
         List<TransportDTO> transportDTOS = transportDAO.readAllSortedByDestination();
 
         if (transportDTOS.isEmpty()) {
-            System.out.println("No transports found in the database");
+            System.out.println("No transports found");
         } else {
             System.out.println("Transports sorted by destination (A-Z):");
             for (TransportDTO transportDTO : transportDTOS) {

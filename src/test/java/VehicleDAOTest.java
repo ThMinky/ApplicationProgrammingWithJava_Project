@@ -1,3 +1,4 @@
+import transport_company.EntityValidator;
 import transport_company.daos.VehicleDAO;
 import transport_company.dtos.VehicleDTO;
 import transport_company.enums.EVehicleType;
@@ -17,11 +18,12 @@ public class VehicleDAOTest {
         List<VehicleDTO> vehiclesBefore = vehicleDAO.readAll();
         int countBefore = vehiclesBefore.size();
 
-        VehicleDTO vehicleDTO = new VehicleDTO();
-        vehicleDTO.setCapacity(50.0);
-        vehicleDTO.setType(EVehicleType.BUS);
-        vehicleDTO.setCompanyId(1L);
-        vehicleDAO.create(vehicleDTO);
+        VehicleDTO newVehicleDTO = new VehicleDTO();
+        newVehicleDTO.setCapacity(50.0);
+        newVehicleDTO.setType(EVehicleType.BUS);
+        newVehicleDTO.setCompanyId(1L);
+        EntityValidator.validate(newVehicleDTO);
+        vehicleDAO.create(newVehicleDTO);
 
         List<VehicleDTO> vehiclesAfter = vehicleDAO.readAll();
         int countAfter = vehiclesAfter.size();
@@ -34,7 +36,7 @@ public class VehicleDAOTest {
         Long vehicleId = 1L;
 
         VehicleDTO vehicleDTO = vehicleDAO.readById(vehicleId);
-        assertNotNull(vehicleDTO, "Vehicle with ID " + vehicleId + " cannot be found in the database");
+        assertNotNull(vehicleDTO, "Vehicle with ID " + vehicleId + " cannot be found");
 
         System.out.println("Vehicle ID: " + vehicleDTO.getId());
         System.out.println("Capacity: " + vehicleDTO.getCapacity());
@@ -47,7 +49,7 @@ public class VehicleDAOTest {
         List<VehicleDTO> vehicleDTOS = vehicleDAO.readAll();
 
         if (vehicleDTOS.isEmpty()) {
-            System.out.println("No vehicles found in the database");
+            System.out.println("No vehicles found");
         } else {
             for (VehicleDTO vehicleDTO : vehicleDTOS) {
                 System.out.println("Vehicle ID: " + vehicleDTO.getId());
@@ -65,7 +67,7 @@ public class VehicleDAOTest {
         Long vehicleId = 1L;
 
         VehicleDTO vehicleDTO = vehicleDAO.readById(vehicleId);
-        assertNotNull(vehicleDTO, "Vehicle with ID " + vehicleId + " cannot be found in the database");
+        assertNotNull(vehicleDTO, "Vehicle with ID " + vehicleId + " cannot be found");
 
         vehicleDTO.setCapacity(2000.0);
         vehicleDTO.setType(EVehicleType.TRUCK);
@@ -73,6 +75,7 @@ public class VehicleDAOTest {
         assertEquals(2000.0, vehicleDTO.getCapacity(), "Vehicle capacity update was not successful");
         assertEquals(EVehicleType.TRUCK, vehicleDTO.getType(), "Vehicle type update was not successful");
 
+        EntityValidator.validate(vehicleDTO);
         vehicleDAO.update(vehicleDTO);
     }
 

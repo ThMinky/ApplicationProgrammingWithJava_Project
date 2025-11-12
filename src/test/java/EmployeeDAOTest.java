@@ -1,3 +1,4 @@
+import transport_company.EntityValidator;
 import transport_company.daos.EmployeeDAO;
 import transport_company.dtos.EmployeeDTO;
 import transport_company.enums.EQualificationType;
@@ -22,6 +23,7 @@ public class EmployeeDAOTest {
         newEmployeeDTO.setQualification(EQualificationType.PASSENGER);
         newEmployeeDTO.setSalary(1000.0);
         newEmployeeDTO.setCompanyId(1L);
+        EntityValidator.validate(newEmployeeDTO);
         employeeDAO.create(newEmployeeDTO);
 
         List<EmployeeDTO> employeesAfter = employeeDAO.readAll();
@@ -35,7 +37,7 @@ public class EmployeeDAOTest {
         Long employeeId = 1L;
 
         EmployeeDTO employeeDTO = employeeDAO.readById(employeeId);
-        assertNotNull(employeeDTO, "Employee with ID " + employeeId + " cannot be found in the database");
+        assertNotNull(employeeDTO, "Employee with ID " + employeeId + " cannot be found");
 
         System.out.println("Employee ID: " + employeeDTO.getId());
         System.out.println("Name: " + employeeDTO.getName());
@@ -50,7 +52,7 @@ public class EmployeeDAOTest {
         List<EmployeeDTO> employeeDTOS = employeeDAO.readAll();
 
         if (employeeDTOS.isEmpty()) {
-            System.out.println("No employees found in the database");
+            System.out.println("No employees found");
         } else {
             for (EmployeeDTO employeeDTO : employeeDTOS) {
                 System.out.println("Employee ID: " + employeeDTO.getId());
@@ -70,7 +72,7 @@ public class EmployeeDAOTest {
         Long employeeId = 1L;
 
         EmployeeDTO employeeDTO = employeeDAO.readById(employeeId);
-        assertNotNull(employeeDTO, "Employee with ID " + employeeId + " cannot be found in the database");
+        assertNotNull(employeeDTO, "Employee with ID " + employeeId + " cannot be found");
 
         employeeDTO.setName("Updated Name");
         employeeDTO.setQualification(EQualificationType.SPECIAL_LOAD);
@@ -80,6 +82,7 @@ public class EmployeeDAOTest {
         assertEquals(EQualificationType.SPECIAL_LOAD, employeeDTO.getQualification(), "Employee qualification update was not successful");
         assertEquals(1500.0, employeeDTO.getSalary(), "Employee salary update was not successful");
 
+        EntityValidator.validate(employeeDTO);
         employeeDAO.update(employeeDTO);
     }
 
@@ -95,7 +98,7 @@ public class EmployeeDAOTest {
         List<EmployeeDTO> employeeDTOS = employeeDAO.readAllSortedByQualification();
 
         if (employeeDTOS.isEmpty()) {
-            System.out.println("No employees found in the database");
+            System.out.println("No employees found");
         } else {
             System.out.println("Employees sorted by QUALIFICATION (A-Z):");
             for (EmployeeDTO employeeDTO : employeeDTOS) {
@@ -116,9 +119,9 @@ public class EmployeeDAOTest {
         List<EmployeeDTO> employeeDTOS = employeeDAO.readAllSortedBySalary();
 
         if (employeeDTOS.isEmpty()) {
-            System.out.println("No employees found in the database");
+            System.out.println("No employees found");
         } else {
-            System.out.println("Employees sorted by SALARY (lowest - highest):");
+            System.out.println("Employees sorted by SALARY (lowest-highest):");
             for (EmployeeDTO employeeDTO : employeeDTOS) {
                 System.out.println("Employee ID: " + employeeDTO.getId());
                 System.out.println("Name: " + employeeDTO.getName());

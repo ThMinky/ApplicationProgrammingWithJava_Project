@@ -1,3 +1,4 @@
+import transport_company.EntityValidator;
 import transport_company.daos.CompanyDAO;
 import transport_company.dtos.CompanyDTO;
 
@@ -22,6 +23,7 @@ public class CompanyDAOTest {
         CompanyDTO newCompanyDTO = new CompanyDTO();
         newCompanyDTO.setName("New Company");
         newCompanyDTO.setRevenue(0.0);
+        EntityValidator.validate(newCompanyDTO);
         companyDAO.create(newCompanyDTO);
 
         List<CompanyDTO> companiesAfter = companyDAO.readAll();
@@ -68,11 +70,15 @@ public class CompanyDAOTest {
 
         String newName = "Updated Name";
         companyDTO.setName(newName);
-        companyDTO.setRevenue(2000.0);
+
+        // Avoid updating revenue directly here
+        // as it can cause mismatches with the company report and actual revenue.
+        companyDTO.setRevenue(0.0);
 
         assertEquals(newName, companyDTO.getName(), "Company name update was not successful");
-        assertEquals(2000.0, companyDTO.getRevenue(), "Company revenue update was not successful");
+        assertEquals(0.0, companyDTO.getRevenue(), "Company revenue update was not successful");
 
+        EntityValidator.validate(companyDTO);
         companyDAO.update(companyDTO);
     }
 

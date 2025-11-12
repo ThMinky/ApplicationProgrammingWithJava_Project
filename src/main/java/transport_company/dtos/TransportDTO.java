@@ -1,5 +1,9 @@
 package transport_company.dtos;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import transport_company.enums.ECargoType;
 import transport_company.enums.ETransportSpecificationType;
 
@@ -7,17 +11,44 @@ import java.time.LocalDateTime;
 
 public class TransportDTO {
     private Long id;
+
+    @NotNull(message = "Start location cannot be null")
+    @NotBlank(message = "Start location cannot be blank")
     private String startLocation;
+
+    @NotNull(message = "End location cannot be null")
+    @NotBlank(message = "End location cannot be blank")
     private String endLocation;
+
+    @NotNull(message = "Depart time cannot be null")
     private LocalDateTime departTime;
+
+    @NotNull(message = "Arrive time cannot be null")
     private LocalDateTime arriveTime;
+
+    @NotNull(message = "Cargo type cannot be null")
     private ECargoType cargoType;
+
+    @NotNull(message = "Transport specification cannot be null")
     private ETransportSpecificationType transportSpecification;
+
+    @NotNull(message = "Weight cannot be null")
+    @PositiveOrZero(message = "Weight must be positive")
     private Double weight;
+
+    @NotNull(message = "Price cannot be null")
+    @Positive(message = "Price must be positive")
     private Double price;
+
+    @NotNull(message = "Paid status cannot be null")
     private Boolean paidStatus;
+
+    @NotNull(message = "Client ID cannot be null")
     private Long clientId;
+
+    @NotNull(message = "Company ID cannot be null")
     private Long companyId;
+
     private Long driverId;
     private Long vehicleId;
 

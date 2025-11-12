@@ -1,13 +1,9 @@
 package transport_company.entities;
 
 import transport_company.enums.ECargoType;
-import transport_company.enums.EVehicleType;
-import transport_company.enums.EQualificationType;
 import transport_company.enums.ETransportSpecificationType;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -22,44 +18,19 @@ public class Transport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Column(length = 50, nullable = false)
     private String startLocation;
-
-    @NotNull
-    @Column(length = 50, nullable = false)
     private String endLocation;
-
-    @NotNull
-    @Column(nullable = false)
     private LocalDateTime departTime;
-
-    @NotNull
-    @Column(nullable = false)
     private LocalDateTime arriveTime;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(length = 50, nullable = false)
     private ECargoType cargoType;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(length = 50, nullable = false)
     private ETransportSpecificationType transportSpecification;
 
-    @NotNull
-    @Positive
-    @Column(nullable = false)
     private Double weight;
-
-    @NotNull
-    @Positive
-    @Column(nullable = false)
     private Double price;
-
-    @NotNull
-    @Column(nullable = false)
     private Boolean paidStatus = false;
 
     // //////////////////////////////////////////////////
@@ -114,9 +85,6 @@ public class Transport {
     }
 
     public void setStartLocation(String startLocation) {
-        if (startLocation == null || startLocation.trim().isEmpty()) {
-            throw new IllegalArgumentException("Start location cannot be null or empty");
-        }
         this.startLocation = startLocation.trim();
     }
 
@@ -128,9 +96,6 @@ public class Transport {
     }
 
     public void setEndLocation(String endLocation) {
-        if (endLocation == null || endLocation.trim().isEmpty()) {
-            throw new IllegalArgumentException("End location cannot be null or empty");
-        }
         this.endLocation = endLocation.trim();
     }
 
@@ -142,9 +107,6 @@ public class Transport {
     }
 
     public void setDepartTime(LocalDateTime departTime) {
-        if (departTime == null) {
-            throw new IllegalArgumentException("Depart time cannot be null");
-        }
         this.departTime = departTime;
     }
 
@@ -156,9 +118,6 @@ public class Transport {
     }
 
     public void setArriveTime(LocalDateTime arriveTime) {
-        if (arriveTime == null) {
-            throw new IllegalArgumentException("Arrive time cannot be null");
-        }
         this.arriveTime = arriveTime;
     }
 
@@ -170,9 +129,6 @@ public class Transport {
     }
 
     public void setCargoType(ECargoType cargoType) {
-        if (cargoType == null) {
-            throw new IllegalArgumentException("Cargo type cannot be null");
-        }
         this.cargoType = cargoType;
     }
 
@@ -184,13 +140,6 @@ public class Transport {
     }
 
     public void setTransportSpecification(ETransportSpecificationType transportSpecification) {
-        if (transportSpecification == null) {
-            throw new IllegalArgumentException("Specification cannot be null");
-        }
-
-        if (driver != null) validateDriverCompatibility(transportSpecification, driver);
-        if (vehicle != null) validateVehicleCompatibility(transportSpecification, vehicle);
-
         this.transportSpecification = transportSpecification;
     }
 
@@ -202,9 +151,6 @@ public class Transport {
     }
 
     public void setWeight(Double weight) {
-        if (cargoType == ECargoType.GOODS && (weight == null || weight <= 0)) {
-            throw new IllegalArgumentException("Weight must be positive for GOODS transport");
-        }
         this.weight = weight;
     }
 
@@ -216,9 +162,6 @@ public class Transport {
     }
 
     public void setPrice(Double price) {
-        if (price == null || price <= 0) {
-            throw new IllegalArgumentException("Price must be positive");
-        }
         this.price = price;
     }
 
@@ -230,9 +173,6 @@ public class Transport {
     }
 
     public void setPaidStatus(Boolean paidStatus) {
-        if (paidStatus == null) {
-            throw new IllegalArgumentException("Paid status cannot be null");
-        }
         this.paidStatus = paidStatus;
     }
 
@@ -278,42 +218,5 @@ public class Transport {
 
     public void setVehicle(Vehicle vehicle) {
         this.vehicle = vehicle;
-    }
-
-    // //////////////////////////////////////////////////
-    // Helpers
-    // //////////////////////////////////////////////////
-    private void validateDriverCompatibility(ETransportSpecificationType transportSpecification, Employee driverToCheck) {
-        if (transportSpecification == null || driverToCheck == null) return;
-
-        EQualificationType expectedQualification = switch (transportSpecification) {
-            case PASSENGER -> EQualificationType.PASSENGER;
-            case GOODS_SPECIAL -> EQualificationType.SPECIAL_LOAD;
-            case GOODS_HAZARDOUS -> EQualificationType.HAZARDOUS_MATERIAL;
-        };
-
-        if (driverToCheck.getQualification() != expectedQualification) {
-            throw new IllegalArgumentException(
-                    "Driver qualification " + driverToCheck.getQualification() +
-                            " does not match transport specification " + transportSpecification
-            );
-        }
-    }
-
-    private void validateVehicleCompatibility(ETransportSpecificationType transportSpecification, Vehicle vehicleToCheck) {
-        if (transportSpecification == null || vehicleToCheck == null) return;
-
-        EVehicleType expectedVehicleType = switch (transportSpecification) {
-            case PASSENGER -> EVehicleType.BUS;
-            case GOODS_SPECIAL -> EVehicleType.TRUCK;
-            case GOODS_HAZARDOUS -> EVehicleType.TANK;
-        };
-
-        if (vehicleToCheck.getType() != expectedVehicleType) {
-            throw new IllegalArgumentException(
-                    "Vehicle type " + vehicleToCheck.getType() +
-                            " does not match transport specification " + transportSpecification
-            );
-        }
     }
 }

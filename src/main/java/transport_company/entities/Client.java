@@ -1,9 +1,6 @@
 package transport_company.entities;
 
-import jakarta.validation.constraints.NotNull;
-
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -19,9 +16,6 @@ public class Client {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @NotBlank
-    @Column(nullable = false, length = 50)
     private String name;
 
     // //////////////////////////////////////////////////
@@ -64,10 +58,7 @@ public class Client {
     }
 
     public void setName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Client name cannot be null or empty");
-        }
-        this.name = name.trim();
+        this.name = name;
     }
 
     // //////////////////////////////////////////////////
@@ -89,26 +80,10 @@ public class Client {
     }
 
     public void addTransport(Transport transport) {
-        if (transport == null) {
-            throw new IllegalArgumentException("Transport cannot be null");
-        }
-
-        if (transports.contains(transport)) {
-            throw new IllegalStateException("This transport is already from this client");
-        }
-
         transports.add(transport);
     }
 
     public void removeTransport(Transport transport) {
-        if (transport == null) {
-            throw new IllegalArgumentException("Transport cannot be null");
-        }
-
-        if (!transports.contains(transport)) {
-            throw new IllegalStateException("This transport is not from this client");
-        }
-
         transports.remove(transport);
     }
 }

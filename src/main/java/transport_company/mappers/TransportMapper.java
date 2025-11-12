@@ -36,7 +36,7 @@ public class TransportMapper {
         transport.setDepartTime(dto.getDepartTime());
         transport.setArriveTime(dto.getArriveTime());
         transport.setCargoType(dto.getCargoType());
-        // transport.setTransportSpecification(dto.getTransportSpecification());
+        transport.setTransportSpecification(dto.getTransportSpecification());
         transport.setWeight(dto.getWeight());
         transport.setPrice(dto.getPrice());
         transport.setPaidStatus(dto.getPaidStatus());
