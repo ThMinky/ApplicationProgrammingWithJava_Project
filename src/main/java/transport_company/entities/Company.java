@@ -1,6 +1,10 @@
 package transport_company.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +17,13 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Company name cannot be null")
+    @NotBlank(message = "Company name cannot be blank")
+    @Size(max = 50, message = "Company name must be at most 50 characters")
     private String name;
+
+    @NotNull(message = "Revenue cannot be null")
+    @PositiveOrZero(message = "Revenue must be positive")
     private Double revenue;
 
     // //////////////////////////////////////////////////

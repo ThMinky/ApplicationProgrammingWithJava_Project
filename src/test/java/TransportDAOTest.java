@@ -113,7 +113,10 @@ public class TransportDAOTest {
         transportDTO.setTransportSpecification(ETransportSpecificationType.GOODS_SPECIAL);
         transportDTO.setWeight(100.0);
         transportDTO.setPrice(1500.0);
-        transportDTO.setPaidStatus(true);
+
+        // Avoid updating paid status directly here
+        // as it can cause mismatches with the company report and actual revenue.
+        transportDTO.setPaidStatus(false);
 
         // Change driver and vehicle
         transportDTO.setDriverId(1L);
@@ -129,7 +132,7 @@ public class TransportDAOTest {
         assertEquals(ETransportSpecificationType.GOODS_SPECIAL, transportDTO.getTransportSpecification(), "Transport specification update was not successful");
         assertEquals(100.0, transportDTO.getWeight(), "Weight update was not successful");
         assertEquals(1500.0, transportDTO.getPrice(), "Price update was not successful");
-        assertTrue(transportDTO.getPaidStatus(), "Paid status update was not successful");
+        assertFalse(transportDTO.getPaidStatus(), "Paid status update was not successful");
 
         EntityValidator.validate(transportDTO);
         transportDAO.update(transportDTO);

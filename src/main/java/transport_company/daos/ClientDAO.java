@@ -2,6 +2,8 @@ package transport_company.daos;
 
 import transport_company.dtos.ClientDTO;
 import transport_company.entities.Client;
+import transport_company.exceptions.EntityNotFoundException;
+import transport_company.exceptions.InvalidEntityException;
 import transport_company.mappers.ClientMapper;
 import transport_company.util.HibernateUtil;
 
@@ -18,7 +20,7 @@ public class ClientDAO {
         java.util.Objects.requireNonNull(dto, "Client DTO cannot be null");
 
         if (dto.getCompanyId() == null) {
-            throw new IllegalArgumentException("Client must have a company ID");
+            throw new InvalidEntityException("Client", "Client must have a company ID");
         }
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -34,10 +36,13 @@ public class ClientDAO {
     public ClientDTO readById(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Client client = session.get(Client.class, id);
-            if (client != null) {
-                Hibernate.initialize(client.getTransports());
-                Hibernate.initialize(client.getCompany());
+            if (client == null) {
+                throw new EntityNotFoundException("Client", id);
             }
+
+            Hibernate.initialize(client.getTransports());
+            Hibernate.initialize(client.getCompany());
+
             return ClientMapper.toDTO(client);
         }
     }
@@ -60,7 +65,7 @@ public class ClientDAO {
 
             Client managed = session.get(Client.class, dto.getId());
             if (managed == null) {
-                throw new IllegalArgumentException("Client with ID " + dto.getId() + " does not exist");
+                throw new EntityNotFoundException("Client", dto.getId());
             }
 
             managed.setName(dto.getName());
@@ -74,9 +79,12 @@ public class ClientDAO {
             Transaction tx = session.beginTransaction();
 
             Client managed = session.get(Client.class, clientId);
-            if (managed != null) {
-                session.remove(managed);
+            if (managed == null) {
+                throw new EntityNotFoundException("Client", clientId);
             }
+
+            session.remove(managed);
+
             tx.commit();
         }
     }
@@ -86,13 +94,19 @@ public class ClientDAO {
     // //////////////////////////////////////////////////
     public Client readEntityById(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery(
+            Client client = session.createQuery(
                             "SELECT c FROM Client c " +
                                     "LEFT JOIN FETCH c.transports " +
                                     "LEFT JOIN FETCH c.company " +
                                     "WHERE c.id = :id", Client.class)
                     .setParameter("id", id)
                     .uniqueResult();
+
+            if (client == null) {
+                throw new EntityNotFoundException("Client", id);
+            }
+
+            return client;
         }
     }
 }

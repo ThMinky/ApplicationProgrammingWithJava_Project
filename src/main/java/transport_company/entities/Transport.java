@@ -1,5 +1,9 @@
 package transport_company.entities;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import transport_company.enums.ECargoType;
 import transport_company.enums.ETransportSpecificationType;
 
@@ -18,19 +22,37 @@ public class Transport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Start location cannot be null")
+    @NotBlank(message = "Start location cannot be blank")
     private String startLocation;
+
+    @NotNull(message = "End location cannot be null")
+    @NotBlank(message = "End location cannot be blank")
     private String endLocation;
+
+    @NotNull(message = "Depart time cannot be null")
     private LocalDateTime departTime;
+
+    @NotNull(message = "Arrive time cannot be null")
     private LocalDateTime arriveTime;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Cargo type cannot be null")
     private ECargoType cargoType;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Transport specification cannot be null")
     private ETransportSpecificationType transportSpecification;
 
+    @NotNull(message = "Weight cannot be null")
+    @PositiveOrZero(message = "Weight must be positive")
     private Double weight;
+
+    @NotNull(message = "Price cannot be null")
+    @Positive(message = "Price must be positive")
     private Double price;
+
+    @NotNull(message = "Paid status cannot be null")
     private Boolean paidStatus = false;
 
     // //////////////////////////////////////////////////
@@ -39,11 +61,17 @@ public class Transport {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", foreignKey = @ForeignKey(name = "fk_transport_company",
             foreignKeyDefinition = "FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE"))
+    @NotNull(message = "Company cannot be null")
     private Company company;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(
+            name = "client_id",
+            nullable = false,
+            foreignKey = @ForeignKey(
+                    foreignKeyDefinition = "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE"
+            )
+    )
     private Client client;
 
     @ManyToOne(fetch = FetchType.LAZY)

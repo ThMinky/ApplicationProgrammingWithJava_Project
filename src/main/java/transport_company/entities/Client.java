@@ -2,6 +2,9 @@ package transport_company.entities;
 
 import jakarta.persistence.*;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -16,6 +19,9 @@ public class Client {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Client name cannot be null")
+    @NotBlank(message = "Client name cannot be blank")
+    @Size(max = 50, message = "Client name must be at most 50 characters")
     private String name;
 
     // //////////////////////////////////////////////////
@@ -24,6 +30,7 @@ public class Client {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @NotNull(message = "Client must have a company")
     private Company company;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

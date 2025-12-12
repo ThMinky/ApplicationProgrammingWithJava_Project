@@ -1,5 +1,8 @@
 package transport_company.entities;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import transport_company.enums.EQualificationType;
 
 import jakarta.persistence.*;
@@ -12,11 +15,16 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Employee name cannot be null")
+    @NotBlank(message = "Employee name cannot be blank")
     private String name;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Employee qualification cannot be null")
     private EQualificationType qualification;
 
+    @NotNull(message = "Salary cannot be null")
+    @Positive(message = "Salary must be positive")
     private Double salary;
 
     // //////////////////////////////////////////////////
@@ -27,6 +35,7 @@ public class Employee {
             foreignKey = @ForeignKey(name = "fk_employee_company",
                     foreignKeyDefinition = "FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE"),
             nullable = false)
+    @NotNull(message = "Employee must have a company")
     private Company company;
 
     // //////////////////////////////////////////////////

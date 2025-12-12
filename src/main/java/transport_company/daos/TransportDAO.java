@@ -5,6 +5,10 @@ import transport_company.entities.*;
 import transport_company.enums.EQualificationType;
 import transport_company.enums.ETransportSpecificationType;
 import transport_company.enums.EVehicleType;
+import transport_company.exceptions.DriverQualificationMismatchException;
+import transport_company.exceptions.EntityNotFoundException;
+import transport_company.exceptions.InvalidEntityException;
+import transport_company.exceptions.VehicleTypeMismatchException;
 import transport_company.mappers.TransportMapper;
 import transport_company.util.HibernateUtil;
 
@@ -20,7 +24,7 @@ public class TransportDAO {
         java.util.Objects.requireNonNull(dto, "Transport DTO cannot be null");
 
         if (dto.getCompanyId() == null) {
-            throw new IllegalArgumentException("Client must have a company ID");
+            throw new InvalidEntityException("Transport", "Transport must have a company ID");
         }
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -32,7 +36,7 @@ public class TransportDAO {
             if (dto.getDriverId() != null) {
                 driver = session.get(Employee.class, dto.getDriverId());
                 if (driver == null)
-                    throw new IllegalArgumentException("Driver with ID " + dto.getDriverId() + " does not exist");
+                    throw new EntityNotFoundException("Driver", dto.getDriverId());
                 transport.setDriver(driver);
             }
 
@@ -40,7 +44,7 @@ public class TransportDAO {
             if (dto.getVehicleId() != null) {
                 vehicle = session.get(Vehicle.class, dto.getVehicleId());
                 if (vehicle == null)
-                    throw new IllegalArgumentException("Vehicle with ID " + dto.getVehicleId() + " does not exist");
+                    throw new EntityNotFoundException("Vehicle", dto.getVehicleId());
                 transport.setVehicle(vehicle);
             }
 
@@ -58,6 +62,11 @@ public class TransportDAO {
                             + "LEFT JOIN FETCH t.vehicle "
                             + "LEFT JOIN FETCH t.driver "
                             + "WHERE t.id = :id", Transport.class).setParameter("id", id).uniqueResult();
+
+            if (transport == null) {
+                throw new EntityNotFoundException("Transport", id);
+            }
+
             return TransportMapper.toDTO(transport);
         }
     }
@@ -77,7 +86,7 @@ public class TransportDAO {
 
             Transport managed = session.get(Transport.class, dto.getId());
             if (managed == null) {
-                throw new IllegalArgumentException("Transport with ID " + dto.getId() + " does not exist");
+                throw new EntityNotFoundException("Transport", dto.getId());
             }
 
             managed.setStartLocation(dto.getStartLocation());
@@ -92,12 +101,12 @@ public class TransportDAO {
 
             Employee driver = session.get(Employee.class, dto.getDriverId());
             if (driver == null) {
-                throw new IllegalArgumentException("Driver with ID " + dto.getDriverId() + " does not exist");
+                throw new EntityNotFoundException("Driver", dto.getDriverId());
             }
 
             Vehicle vehicle = session.get(Vehicle.class, dto.getVehicleId());
             if (vehicle == null) {
-                throw new IllegalArgumentException("Vehicle with ID " + dto.getVehicleId() + " does not exist");
+                throw new EntityNotFoundException("Vehicle", dto.getVehicleId());
             }
 
             validateCompatibility(dto.getTransportSpecification(), driver, vehicle);
@@ -114,9 +123,12 @@ public class TransportDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction tx = session.beginTransaction();
             Transport managed = session.get(Transport.class, transportId);
-            if (managed != null) {
-                session.remove(managed);
+            if (managed == null) {
+                throw new EntityNotFoundException("Transport", transportId);
             }
+
+            session.remove(managed);
+
             tx.commit();
         }
     }
@@ -141,7 +153,7 @@ public class TransportDAO {
                 case GOODS_HAZARDOUS -> EQualificationType.HAZARDOUS_MATERIAL;
             };
             if (driver.getQualification() != expected) {
-                throw new IllegalArgumentException(
+                throw new DriverQualificationMismatchException(
                         "Driver qualification " + driver.getQualification() +
                                 " does not match transport specification " + spec
                 );
@@ -155,7 +167,7 @@ public class TransportDAO {
                 case GOODS_HAZARDOUS -> EVehicleType.TANK;
             };
             if (vehicle.getType() != expected) {
-                throw new IllegalArgumentException(
+                throw new VehicleTypeMismatchException(
                         "Vehicle type " + vehicle.getType() +
                                 " does not match transport specification " + spec
                 );

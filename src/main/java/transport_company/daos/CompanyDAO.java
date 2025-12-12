@@ -2,6 +2,8 @@ package transport_company.daos;
 
 import transport_company.dtos.CompanyDTO;
 import transport_company.entities.*;
+import transport_company.exceptions.EntityNotFoundException;
+import transport_company.exceptions.InvalidEntityException;
 import transport_company.mappers.CompanyMapper;
 import transport_company.util.HibernateUtil;
 
@@ -30,12 +32,15 @@ public class CompanyDAO {
     public CompanyDTO readById(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Company company = session.get(Company.class, id);
-            if (company != null) {
-                Hibernate.initialize(company.getClients());
-                Hibernate.initialize(company.getEmployees());
-                Hibernate.initialize(company.getVehicles());
-                Hibernate.initialize(company.getTransports());
+            if (company == null) {
+                throw new EntityNotFoundException("Company", id);
             }
+
+            Hibernate.initialize(company.getClients());
+            Hibernate.initialize(company.getEmployees());
+            Hibernate.initialize(company.getVehicles());
+            Hibernate.initialize(company.getTransports());
+
             return CompanyMapper.toDTO(company);
         }
     }
@@ -55,7 +60,7 @@ public class CompanyDAO {
 
             Company managed = session.get(Company.class, dto.getId());
             if (managed == null) {
-                throw new IllegalArgumentException("Company with ID " + dto.getId() + " does not exist");
+                throw new EntityNotFoundException("Company", dto.getId());
             }
 
             managed.setName(dto.getName());
@@ -69,9 +74,12 @@ public class CompanyDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction tx = session.beginTransaction();
             Company managed = session.get(Company.class, companyId);
-            if (managed != null) {
-                session.remove(managed);
+            if (managed == null) {
+                throw new EntityNotFoundException("Company", companyId);
             }
+
+            session.remove(managed);
+
             tx.commit();
         }
     }
@@ -95,7 +103,7 @@ public class CompanyDAO {
     // //////////////////////////////////////////////////
     public Company readByIdWithTransports(Long companyId) {
         if (companyId == null) {
-            throw new IllegalArgumentException("Company ID cannot be null");
+            throw new InvalidEntityException("Company", "Company ID cannot be null");
         }
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {

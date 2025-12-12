@@ -2,6 +2,8 @@ package transport_company.daos;
 
 import transport_company.dtos.EmployeeDTO;
 import transport_company.entities.Employee;
+import transport_company.exceptions.EntityNotFoundException;
+import transport_company.exceptions.InvalidEntityException;
 import transport_company.mappers.EmployeeMapper;
 import transport_company.util.HibernateUtil;
 
@@ -17,7 +19,7 @@ public class EmployeeDAO {
         java.util.Objects.requireNonNull(dto, "Employee DTO cannot be null");
 
         if (dto.getCompanyId() == null) {
-            throw new IllegalArgumentException("Employee must have a company ID");
+            throw new InvalidEntityException("Employee", "Employee must have a company ID");
         }
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -33,6 +35,10 @@ public class EmployeeDAO {
     public EmployeeDTO readById(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Employee employee = session.get(Employee.class, id);
+            if (employee == null) {
+                throw new EntityNotFoundException("Employee", id);
+            }
+
             return EmployeeMapper.toDTO(employee);
         }
     }
@@ -52,7 +58,7 @@ public class EmployeeDAO {
 
             Employee managed = session.get(Employee.class, dto.getId());
             if (managed == null) {
-                throw new IllegalArgumentException("Employee with ID " + dto.getId() + " does not exist");
+                throw new EntityNotFoundException("Employee", dto.getId());
             }
 
             managed.setName(dto.getName());
@@ -67,9 +73,12 @@ public class EmployeeDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction tx = session.beginTransaction();
             Employee managed = session.get(Employee.class, employeeId);
-            if (managed != null) {
-                session.remove(managed);
+            if (managed == null) {
+                throw new EntityNotFoundException("Employee", employeeId);
             }
+
+            session.remove(managed);
+
             tx.commit();
         }
     }

@@ -1,5 +1,7 @@
 package transport_company.entities;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import transport_company.enums.EVehicleType;
 
 import jakarta.persistence.*;
@@ -12,9 +14,12 @@ public class Vehicle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Vehicle capacity cannot be null")
+    @Positive(message = "Vehicle capacity must be positive")
     private Double capacity;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Vehicle type cannot be null")
     private EVehicleType type;
 
     // //////////////////////////////////////////////////
@@ -24,6 +29,7 @@ public class Vehicle {
     @JoinColumn(name = "company_id",
             foreignKey = @ForeignKey(name = "fk_vehicle_company",
                     foreignKeyDefinition = "FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE"))
+    @NotNull(message = "Vehicle must have a company")
     private Company company;
 
     // //////////////////////////////////////////////////

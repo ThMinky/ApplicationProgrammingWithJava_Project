@@ -2,6 +2,8 @@ package transport_company.daos;
 
 import transport_company.dtos.VehicleDTO;
 import transport_company.entities.Vehicle;
+import transport_company.exceptions.EntityNotFoundException;
+import transport_company.exceptions.InvalidEntityException;
 import transport_company.mappers.VehicleMapper;
 import transport_company.util.HibernateUtil;
 
@@ -17,7 +19,7 @@ public class VehicleDAO {
         java.util.Objects.requireNonNull(dto, "Vehicle DTO cannot be null");
 
         if (dto.getCompanyId() == null) {
-            throw new IllegalArgumentException("Vehicle must have a company ID");
+            throw new InvalidEntityException("Vehicle", "Vehicle must have a company ID");
         }
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -33,6 +35,10 @@ public class VehicleDAO {
     public VehicleDTO readById(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Vehicle vehicle = session.get(Vehicle.class, id);
+            if (vehicle == null) {
+                throw new EntityNotFoundException("Vehicle", id);
+            }
+
             return VehicleMapper.toDTO(vehicle);
         }
     }
@@ -52,7 +58,7 @@ public class VehicleDAO {
 
             Vehicle managed = session.get(Vehicle.class, dto.getId());
             if (managed == null) {
-                throw new IllegalArgumentException("Vehicle with ID " + dto.getId() + " does not exist");
+                throw new EntityNotFoundException("Vehicle", dto.getId());
             }
 
             managed.setCapacity(dto.getCapacity());
@@ -66,9 +72,12 @@ public class VehicleDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction tx = session.beginTransaction();
             Vehicle managed = session.get(Vehicle.class, vehicleId);
-            if (managed != null) {
-                session.remove(managed);
+            if (managed == null) {
+                throw new EntityNotFoundException("Vehicle", vehicleId);
             }
+
+            session.remove(managed);
+
             tx.commit();
         }
     }
